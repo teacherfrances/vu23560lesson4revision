@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Start to finish online: revision</title>
+<style>
+:root{
+  --black:#141414; --bar:#1d1d1d; --addr:#3b3b3b;
+  --mid:#555; --grey:#7a7a7a; --line:#9a9a9a; --pale:#ececec; --pale2:#f5f5f5;
+  --or:#F5A20F; --or-tint:#FFF0D2; --or-deep:#8A5300; --red:#9b2c2c; --red-tint:#F7E7E7;
+  --disp:"Century Gothic","CenturyGothic","URW Gothic","URW Gothic L","AppleGothic","Avant Garde","Futura","Trebuchet MS",sans-serif;
+  --body:Calibri,Carlito,"Segoe UI",Candara,"Helvetica Neue",Arial,sans-serif;
+  --mono:Consolas,"Lucida Console","DejaVu Sans Mono","Courier New",monospace;
+}
+body{--pc:#F5A20F;--pc-ink:#141414;--pc-tint:#FFF0D2}
+body.g0{--pc:#F5A20F;--pc-ink:#141414;--pc-tint:#FFF0D2}
+body.g1{--pc:#141414;--pc-ink:#F5A20F;--pc-tint:#EFEFEF}
+body.g2{--pc:#6B6B6B;--pc-ink:#ffffff;--pc-tint:#EBEBEB}
+*{box-sizing:border-box}
+html{font-size:28px;height:100%}
+body{margin:0;height:100%;height:100dvh;display:flex;flex-direction:column;overflow:hidden;
+  font-family:var(--body);color:var(--black);background:#fff;line-height:1.3;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:4px solid var(--or);outline-offset:2px;box-shadow:0 0 0 7px var(--black)}
+.disp{font-family:var(--disp);font-weight:700}
+
+/* top bar */
+.top{background:var(--bar);color:#fff;display:flex;align-items:center;gap:.3rem;padding:.25rem .4rem;flex:none}
+.dots{display:flex;gap:.2rem;flex:none}
+.dots i{display:block;width:.36rem;height:.36rem;border-radius:50%;background:#9a9a9a}
+.dots i:first-child{background:var(--or)}
+.addr{flex:1;min-width:0;background:var(--addr);border-radius:999px;padding:.2rem .7rem;font-size:.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb{background:#fff;color:#111;border:0;border-radius:4px;font-weight:700;font-size:.75rem;min-height:44px;min-width:44px;padding:0 .4rem;flex:none}
+.saved{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + min(5rem,150px));right:.5rem;background:var(--or);color:var(--black);font-weight:700;font-size:.7rem;padding:.1rem .6rem;border:2px solid var(--black);border-radius:999px;opacity:0;transition:opacity .3s;z-index:90;pointer-events:none}
+.saved.on{opacity:1}
+.prog{height:.4rem;background:#fff;flex:none;display:flex;gap:2px;padding:2px 2px 0}
+.prog i{display:block;flex:1;height:100%;opacity:.25}
+.prog i.on{opacity:1}
+
+main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:.5rem .6rem 1.2rem;position:relative}
+.wrap{max-width:900px;margin:0 auto;overflow-wrap:anywhere;word-break:normal}
+.taskbox .tt,.taskbox .tf,.q,.opt .tx,.showtxt,.mist div,.lede{overflow-wrap:anywhere}
+
+/* bottom bar */
+.foot{flex:none;border-top:6px solid var(--pc);background:#fff;padding:.3rem .4rem;display:flex;flex-wrap:wrap;gap:.3rem;align-items:center}
+.foot{font-size:min(.9rem,30px)}
+.foot .bb{padding:.15em .4em}
+.foot .bb{flex:1;white-space:nowrap}
+.bb{border:3px solid var(--black);background:#fff;font-weight:700;min-height:2.1em;padding:.15em .7em;border-radius:4px;text-align:center}
+.bb.go{background:var(--or);color:var(--black)}
+.bb.solid{background:var(--black);color:#fff}
+.bb.wait{background:#fff;border-style:dashed;border-color:var(--or-deep);color:var(--or-deep)}
+.bb[disabled]{opacity:.35;cursor:default}
+.foot .bb.menub{flex:0 0 auto}
+.bb.skip{flex-basis:100%;background:var(--pale);font-weight:400}
+.pill{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + min(3.6rem,120px));font-size:min(.75rem,24px);white-space:nowrap;z-index:40;background:var(--black);color:#fff;border:3px solid var(--or);border-radius:999px;font-weight:700;padding:.2em .9em;min-height:44px;max-width:94vw;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+
+/* docx-look pieces */
+.sbar{display:flex;align-items:stretch;margin:.2em 0 .5em}
+.sbar .blk{background:var(--pc);color:var(--pc-ink);font-family:var(--disp);font-weight:700;min-width:1.9em;display:flex;align-items:center;justify-content:center;font-size:1.1em;padding:0 .25em}
+.sbar .ttl{flex:1;background:var(--pc-tint);border:3px solid var(--black);border-left:0;padding:.25em .6em;font-family:var(--disp);font-weight:700}
+.lede{color:var(--mid);margin:.1em 0 .5em}
+.live{border:3px solid var(--black);background:var(--pale2);padding:.3em .6em;margin:.4em 0 .6em}
+.live.small{font-size:.72em;padding:.2em .5em;margin:.2em 0 .4em}
+.live .bar{height:.4em;background:#fff;border:2px solid var(--black);margin-top:.3em}
+.live .bar i{display:block;height:100%;background:var(--or)}
+.note{display:flex;background:var(--pale2);margin:.6em 0}
+.note .badge{width:1.7em;flex:none;background:#555;color:#fff;display:flex;justify-content:center;padding-top:.3em;font-weight:700}
+.note.ok .badge{background:var(--black);color:var(--or)}
+.note.warn .badge{background:var(--red)}
+.note .nb{padding:.4em .7em;flex:1;min-width:0}
+.note p{margin:.15em 0}
+.hl{background:var(--or-tint);border-bottom:3px solid var(--or);padding:0 .15em;font-weight:700}
+.muted{color:var(--mid)}
+.center{text-align:center}
+.row{display:flex;flex-wrap:wrap;gap:.4em;align-items:center}
+.grouphead{font-family:var(--disp);font-weight:700;margin:1em 0 .4em;display:flex;align-items:center;gap:.4em}
+.grouphead .sw{width:1em;height:1em;border:3px solid var(--black);flex:none}
+
+/* menu tiles */
+.hero{border:3px solid var(--black);border-bottom:10px solid var(--or);margin:.3em 0 .6em}
+.hero .hbar{background:var(--bar);color:#fff;padding:.25em .6em;font-size:.75em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero .panel{background:var(--or-tint);border-left:12px solid var(--or);margin:.6em;padding:.6em .8em}
+.eyebrow{font-family:var(--disp);font-weight:700;font-size:.75em}
+.big{font-family:var(--disp);font-weight:700;font-size:1.6em;line-height:1.1;margin:.15em 0}
+.mtile{display:flex;align-items:stretch;width:100%;text-align:left;border:3px solid var(--black);border-bottom-width:7px;background:#fff;padding:0;margin:.4em 0}
+.mtile .l{font-family:var(--disp);font-weight:700;width:1.9em;flex:none;display:flex;align-items:center;justify-content:center;font-size:1.1em}
+.mtile .t{padding:.35em .6em;flex:1;min-width:0}
+.mtile .t b{display:block}
+.mtile .d{display:block;color:var(--mid)}
+.mtile .sc{display:inline-block;margin-top:.25em;border:2px solid var(--black);border-radius:999px;padding:0 .5em;font-weight:700}
+.mtile .sc.done{background:var(--or)}
+.welcome{border:3px solid var(--black);background:var(--or);padding:.5em .7em;margin:.5em 0}
+
+/* item cards */
+.card{border:3px solid var(--black);border-bottom:8px solid var(--pc);background:#fff;padding:.6em .7em;margin:.7em 0;border-left-width:3px}
+.card.ok{border-left:12px solid var(--or)}
+.card.no{border-left:12px solid var(--red)}
+.card.flash{animation:flash 1s}
+@keyframes flash{25%{background:var(--or-tint)}75%{background:var(--or-tint)}}
+.chead{display:flex;align-items:center;gap:.4em;margin-bottom:.3em;flex-wrap:wrap}
+.num{background:var(--pc);color:var(--pc-ink);font-weight:700;min-width:1.6em;min-height:1.6em;display:flex;align-items:center;justify-content:center}
+.tag{border:2px solid var(--tagc,#8A5300);color:var(--tagc,#8A5300);padding:0 .45em;font-weight:700;font-size:.85em;border-radius:3px}
+.q{font-weight:700;margin:.3em 0 .55em;background:var(--pc-tint);border-left:8px solid var(--pc);padding:.45em .6em}
+.stress{background:var(--pc-tint);border-left:8px solid var(--pc);padding:.2em .4em}
+.showtxt{border:3px solid var(--black);background:var(--pale2);padding:.4em .6em;margin:.3em 0 .5em;font-family:var(--mono);white-space:pre-line;overflow-wrap:anywhere}
+.opt{display:flex;gap:.5em;align-items:center;width:100%;text-align:left;border:3px solid var(--black);background:#fff;min-height:2.1em;padding:.3em .6em;margin:.35em 0;border-radius:4px}
+.opt .tx{min-width:0;overflow-wrap:anywhere}
+.opt .ol{flex:none;min-width:1.5em;height:1.5em;display:inline-flex;align-items:center;justify-content:center;background:var(--pc-tint);border:2px solid var(--pc);color:var(--black);font-weight:700;border-radius:4px}
+.opt.right .ol{background:var(--or);border-color:var(--or)}
+.opt{padding-left:.4em}
+.opt .mk{margin-left:auto;font-weight:700;flex:none}
+.q,.fb,.mist div{overflow-wrap:anywhere}
+.opt.right{background:var(--black);color:#fff}
+.opt.right .mk{color:var(--or)}
+.opt.wrong{background:repeating-linear-gradient(45deg,#e8e8e8 0 8px,#cdcdcd 8px 16px)}
+.opt.wrong .tx{text-decoration:line-through}
+.opt.dim{opacity:.45}
+.fb{margin:.4em 0 .2em;padding:.4em .6em;border:3px solid var(--black);background:var(--pale2)}
+.fb.good{background:var(--or-tint)}
+.fb b{display:block}
+.chg{border:2px solid var(--black);background:#fff;border-radius:999px;min-height:44px;padding:0 .8em;font-weight:700;margin-top:.3em}
+.say{border:2px solid var(--black);background:#fff;border-radius:999px;min-height:44px;padding:0 .8em;font-weight:700}
+.stress{font-family:var(--disp);font-weight:700;font-size:min(1.5em,10vw);text-align:center;margin:.2em 0}
+.summary{border:3px solid var(--black);border-bottom:8px solid var(--pc);background:var(--pc-tint);padding:.6em .7em;margin:1em 0}
+.mchip{border:2px solid var(--black);background:#fff;border-radius:999px;min-height:44px;padding:0 .7em;margin:.15em;font-weight:700}
+
+/* ===== simulation ===== */
+.taskbox{position:sticky;top:-.5rem;z-index:20;background:#fff;border:3px solid var(--black);border-bottom:8px solid var(--or);padding:.4em .6em;margin:.3em 0 .5em;box-shadow:0 6px 0 #fff}
+.taskbox{font-size:.9em;background:var(--pc-tint);border-color:var(--black)}
+.taskbox .tt::before{content:"\1F449  "}
+.taskbox .tf{background:#fff}
+@media (max-height:900px), (max-width:600px){ .taskbox{position:static;box-shadow:none} }
+.taskbox .tn{font-size:.8em;color:var(--mid);font-weight:700}
+.taskbox .tt{font-weight:700;font-size:1.05em}
+.taskbox .tf{font-size:.85em;margin-bottom:.25em;padding:.2em .4em}
+.taskbox .tf.good{background:var(--or-tint);border-left:6px solid var(--or)}
+.taskbox .tf.bad{background:var(--red-tint);border-left:6px solid var(--red)}
+.sim{font-size:.62em;border:3px solid var(--black);border-bottom:10px solid var(--pc);background:#fff;overflow:hidden;line-height:1.25;user-select:none;-webkit-user-select:none}
+.hit{font:inherit;color:inherit;min-height:44px;min-width:44px;border:0;background:transparent;display:inline-flex;align-items:center;justify-content:center;padding:.2em .5em;border-radius:6px;text-align:left;-webkit-tap-highlight-color:transparent}
+.sim .hit{scroll-margin-top:9rem;scroll-margin-bottom:2rem}
+.hit.okf{animation:okf .7s}
+.hit.nof{animation:nof .6s}
+@keyframes okf{0%,60%{background:var(--or);color:var(--black);box-shadow:0 0 0 3px var(--black)}}
+@keyframes nof{0%,20%,60%{transform:translateX(-4px);background:#d3d3d3}40%,80%{transform:translateX(4px)}}
+.hit.done{box-shadow:inset 0 0 0 3px var(--or)}
+
+/* desktop */
+.desk{color:#fff;background:#2c3a4d}
+.wall{background:radial-gradient(ellipse at 75% 20%,#5d7690 0%,#3b4d63 45%,#25303e 100%);padding:.8em .5em 1.2em;min-height:22em}
+.icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(5.6em,1fr));gap:.9em .2em}
+.icons .hit{flex-direction:column;justify-content:flex-start;padding:.35em .2em;color:#fff;border-radius:10px}
+.icons .hit:active{background:rgba(255,255,255,.18)}
+.icons .hit.done{background:rgba(245,162,15,.22);box-shadow:inset 0 0 0 3px var(--or)}
+.ic{width:4.6em;height:4.6em;border-radius:20%;background:#ffffff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 8px rgba(0,0,0,.45)}
+.ic svg{width:76%;height:76%}
+.icl{font-size:1.05em;font-weight:700;margin-top:.35em;text-align:center;min-height:1.3em;color:#fff;text-shadow:0 1px 3px #000}
+.taskbar{display:flex;align-items:center;gap:.6em;background:rgba(20,24,32,.96);padding:.35em .6em;color:#e6e9f2;border-top:1px solid #4a5568}
+.startb{display:inline-flex;width:2.2em;height:2.2em;align-items:center;justify-content:center;background:#3b4658;border-radius:6px}
+.startb svg{width:1.2em;height:1.2em}
+.tsearch{flex:1;background:#3b4658;border-radius:999px;padding:.35em .8em;color:#c9cede;white-space:nowrap;overflow:hidden}
+.clock{display:flex;flex-direction:column;align-items:flex-end;font-size:.85em;line-height:1.15;white-space:nowrap}
+/* browser chrome */
+.chrome{background:#e4e6eb}
+.tabs{display:flex;align-items:flex-end;gap:.2em;padding:.35em .35em 0;min-width:0}
+.tabw{display:flex;align-items:center;background:#d2d6de;border-radius:8px 8px 0 0;min-width:0;flex:0 1 auto}
+.tabw.on{background:#fff}
+.tabw .hit.tabt{justify-content:flex-start;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:11em;display:block;line-height:44px;padding:0 .4em}
+.tabw .hit.tabx{min-width:40px;padding:0}
+.tool{display:flex;align-items:center;gap:.1em;padding:.15em .25em .25em;background:#fff;border-bottom:2px solid #d6d9e0}
+.tool .hit{padding:0 .3em;font-size:1.15em}
+.tool .hit.addr{flex:1;min-width:0;justify-content:flex-start;background:#eef0f4;border-radius:999px;font-size:1em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;line-height:44px;padding:0 .7em}
+.tool .fwd{color:#9aa0ab}
+.page{display:flex;min-height:15em;position:relative}
+.pcont{flex:1;min-width:0}
+.scol{width:30px;flex:none;background:#f1f2f5;border-left:2px solid #dcdfe5;display:flex}
+.scol .hit{width:100%;min-width:30px;padding:0;align-items:flex-start;border-radius:0}
+.thumb{display:block;width:12px;height:3.5em;background:#8d929c;border-radius:6px;margin:.4em auto 0}
+.thumb.low{margin-top:6em}
+.phead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.3em;padding:.4em .5em}
+.logo{font-family:var(--disp);font-weight:700;font-size:1.25em}
+.logo i{display:inline-flex;width:1.5em;height:1.5em;border-radius:50%;background:#3a3a3a;color:#fff;font-style:normal;align-items:center;justify-content:center;margin-right:.25em;font-size:.9em}
+.sbox{border:2px solid #b9bdc6;border-radius:999px;color:#666;background:#fff;padding:0 .7em}
+.nav{background:#1b1b1b;display:flex;flex-wrap:wrap;padding:0 .2em}
+.nav .hit{color:#fff;font-family:var(--disp);font-weight:700;padding:0 .5em}
+.herop{background:#e6e6e6;padding:.7em .7em .8em;position:relative}
+.herop h3{margin:0 0 .2em;font-family:var(--disp);font-size:1.35em}
+.findbtn{background:#3d3d3d!important;color:#fff!important;border-radius:999px!important;font-family:var(--disp);font-weight:700;padding:0 1em!important;margin-top:.4em}
+.cursor{position:absolute;right:16%;top:1.6em;font-size:1.6em;min-width:44px;min-height:44px}
+.cards{display:flex;flex-wrap:wrap;gap:.4em;padding:.6em}
+.cards .hit{border:2px solid #d0d3da;border-radius:6px;flex:1 1 8em;flex-direction:column;align-items:flex-start;padding:.4em .5em}
+.cards b{font-family:var(--disp)}
+.drop{margin:0 .6em .2em 3.5em;border:2px solid #d0d3da;background:#fff;display:flex;flex-direction:column;box-shadow:0 4px 0 rgba(0,0,0,.08)}
+.drop .hit{justify-content:space-between;border-radius:0;border-bottom:1px solid #eee;width:100%}
+.drop .hit.open{background:#e9e9e9}
+.drop.two{margin-left:5.5em}
+.pbody{padding:.6em .7em}
+.pbody h3{font-family:var(--disp);margin:.1em 0 .4em;font-size:1.3em}
+.pbody p{margin:.3em 0}
+.fade{color:#aaa}
+.blank{padding:2.5em 1em;text-align:center;color:var(--mid)}
+.keys{display:flex;flex-wrap:wrap;gap:.35em;padding:.6em;background:#d9dce2}
+.keys .hit{background:#fff;border:2px solid #9aa0ab;border-radius:6px;font-family:var(--mono);font-weight:700;font-size:1.15em;padding:0 .6em;box-shadow:0 3px 0 #9aa0ab}
+.keys .hit.enter{background:var(--black);color:#fff;font-family:var(--body)}
+.serp{padding:.4em .7em}
+.serp .slogo{font-family:var(--disp);font-weight:700;font-size:1.3em;margin-right:.4em}
+.stabs{display:flex;flex-wrap:wrap;border-bottom:2px solid #dcdfe5;padding:0 .4em}
+.stabs .hit{color:#555;font-family:var(--disp);font-weight:700}
+.stabs .hit.cur{color:#111;box-shadow:inset 0 -4px 0 #111;border-radius:0}
+.res{padding:.35em .5em .5em}
+.res .hit{display:flex;justify-content:flex-start;padding:0 .3em;min-height:40px}
+.res .rurl{color:#5b6070}
+.res .rt{font-family:var(--disp);font-weight:700;font-size:1.1em;color:#1a4fb5;text-decoration:underline;text-decoration-thickness:1px}
+.res .rd{padding:0 .3em;color:#333}
+.spons{font-weight:700;color:#111}
+.loading{padding:3em 1em;text-align:center;font-weight:700}
+
+.th{display:inline-flex;width:1.7em;height:1.7em;background:#111;color:#fff;border-radius:6px;align-items:center;justify-content:center;font-style:normal;font-size:.85em;margin-right:.3em;font-family:var(--disp)}
+.logo .th{border-radius:6px}
+.pillb{border:2px solid #333!important;border-radius:999px!important;padding:0 1em!important;font-weight:700;background:#fff}
+.pillb.dark{background:#3d3d3d!important;color:#fff!important}
+.thhero{display:flex!important;flex-direction:column;align-items:flex-start!important;background:#1b1b1b!important;color:#fff!important;width:100%;border-radius:0!important;padding:.7em .8em!important}
+.thhero h3{margin:0 0 .2em;font-family:var(--disp);font-size:1.35em}
+.lvls{display:flex;flex-wrap:wrap;gap:.4em}
+.lvl{flex:1 1 9em;flex-direction:column;align-items:flex-start!important;background:#f1f2f5!important;border-radius:8px!important;padding:.5em .6em!important}
+.lvl b{font-family:var(--disp);font-size:1.15em}
+.lvl .start{font-weight:700;margin-top:.2em}
+.flinks{display:flex;flex-wrap:wrap;padding:0 .4em .5em;color:#555}
+.l2tabs{display:flex;flex-wrap:wrap;gap:.3em;padding:.2em .5em .5em}
+.l2tabs .hit{background:#eef0f4;border-radius:999px;font-family:var(--disp);font-weight:700;padding:0 .9em}
+.l2tabs .hit.on{background:#444;color:#fff}
+.lrows{padding:0 .5em .6em}
+.lrow{display:flex;flex-wrap:wrap;align-items:center;border:2px solid #d0d3da;border-radius:8px;margin:.3em 0;padding:0 .2em}
+.lrow .ltitle{flex:1 1 10em;justify-content:flex-start;font-family:var(--disp);font-weight:700}
+.newb{background:#111!important;color:#fff!important;border-radius:999px!important;font-weight:700;min-height:44px!important}
+.ltime{color:#555}
+.player,.lplayer{background:#1b1b1b;color:#fff;border-radius:10px;padding:.6em .7em}
+.lplayer{border:3px solid var(--black);margin:.4em 0 .6em}
+.lplayer .say{background:#fff;color:#111}
+.lplayer .mchip{min-width:44px;color:#111;background:#fff}
+.lplayer .muted{color:#d5d9e3}
+.lsteps{color:#c9cede;margin:.2em 0 .4em}
+.ptitle{font-family:var(--disp);font-weight:700;font-size:1.15em}
+.psub{color:#c9cede;margin-bottom:.3em}
+.ctrls{display:flex;flex-wrap:wrap;align-items:center;gap:.2em}
+.ctrls .hit{color:#fff;font-size:1.2em}
+.ctrls .playb{background:#fff!important;color:#111!important;border-radius:50%!important;width:2.4em;height:2.4em}
+.ctrls .dim{opacity:.5}
+.ctrls .spd{border:2px solid #fff!important;border-radius:999px!important;font-size:1em}
+.pbar{width:100%;justify-content:flex-start!important;padding:0 .3em!important}
+.pbar .pfill{display:block;height:8px;background:#fff;border-radius:4px;box-shadow:inset 0 0 0 0 #fff}
+.pbar::after{content:"";flex:1;height:8px;background:#4b5263;border-radius:4px}
+.showt{background:#3a4152!important;color:#fff!important;border-radius:999px!important;font-weight:700;margin-top:.3em}
+.ptext{background:#fff;color:#111;border-radius:6px;padding:.4em .6em;margin-top:.4em}
+.ptext.light{border:2px solid #555}
+.printbg{background:#9aa1ae;padding:.6em}
+.pbox{background:#fff;border-radius:10px;padding:.6em .7em}
+.prhead{display:flex;justify-content:space-between;align-items:center;font-family:var(--disp);font-size:1.2em}
+.preview{flex-direction:column;align-items:flex-start!important;background:#f1f2f5!important;border:2px solid #d0d3da!important;width:9em;padding:.5em!important;margin:.3em 0}
+.preview i{display:block;height:5px;width:100%;background:#d5d8e0;margin-top:.45em}
+.pform{display:flex;flex-direction:column;gap:.2em}
+.prow{display:flex;align-items:center;gap:.4em;flex-wrap:wrap}
+.plab{font-family:var(--disp);font-weight:700;width:5.5em}
+.sel{flex:1;justify-content:space-between!important;border:2px solid #d0d3da!important;min-width:8em}
+.caret2{color:#555}
+.addrw{flex:1;display:flex;align-items:center;min-width:0;background:#eef0f4;border-radius:999px}
+.addrw .hit.addr{background:transparent!important;padding-left:.2em}
+.lockb{padding:0 .2em!important}
+.popup{border:4px solid #c8452e;border-radius:10px;background:#fff;margin:.4em .5em;padding:.5em .6em}
+.congr{color:#c8452e;font-family:var(--disp)}
+.claim{background:#c8452e!important;color:#fff!important;border-radius:999px!important;font-weight:700;padding:0 1em!important}
+.pwbox{background:#fff;border:2px solid #d0d3da;border-radius:10px;margin:.4em .5em .6em;padding:.5em .6em}
+.fld{border:2px solid #d0d3da;border-radius:6px;padding:.2em .5em;margin:.1em 0 .3em}
+.chk{justify-content:flex-start!important;gap:.4em}
+.cbox{display:inline-flex;width:1.3em;height:1.3em;border:2px solid #111;align-items:center;justify-content:center;font-weight:700}
+/* lesson 4 extras */
+.wall4{min-height:5.5em;display:flex;align-items:flex-start;justify-content:flex-end;padding:.6em .8em}
+.tbar4{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.1em .15em;background:rgba(20,24,32,.96);padding:.3em .4em;border-top:1px solid #4a5568}
+.tbar4 .hit{padding:.15em;border-radius:8px}
+.tbar4 .hit.done{background:rgba(245,162,15,.3);box-shadow:inset 0 0 0 3px var(--or)}
+.ic.sm{width:2.9em;height:2.9em;border-radius:22%;box-shadow:0 2px 4px rgba(0,0,0,.45)}
+.shome{text-align:center;padding:2em .8em 3em}
+.slogo.big4{font-size:2em;margin:0 0 .3em}
+.bigsbar{width:100%;max-width:26em;border:2px solid #b9bdc6!important;border-radius:999px!important;justify-content:flex-start!important;color:#666;background:#fff!important;padding:0 1em!important}
+.newsb{background:#2E7D4F;color:#fff;font-weight:700;padding:0 .4em;border-radius:3px;margin-right:.3em}
+.infob{display:flex!important;flex-direction:column;align-items:flex-start!important;width:100%;border:2px solid #d0d3da!important;border-radius:8px!important;margin:.3em 0;padding:.3em .6em!important}
+.th.we{background:#B8860B}
+.res .hit{min-height:44px}
+.scr4top{background:#1b1b1b;color:#fff;font-family:var(--disp);font-weight:700;text-align:center;padding:.2em}
+.scr4{display:grid;grid-template-columns:repeat(3,1fr);background:#fff}
+.scell4{min-height:4.2em!important;border:2px dashed #b9bdc6!important;border-radius:0!important;background:#f7f7f7!important;font-family:var(--disp);font-weight:700;font-size:1.15em;justify-content:center!important;text-align:center!important}
+.scell4.done{background:var(--or-tint)!important;border-style:solid!important;border-color:var(--or)!important}
+/* static page in read part */
+.spage{font-size:.8em;border:3px solid var(--black);border-bottom:8px solid var(--pc);margin:.6em 0;background:#fff}
+.spage .sbarr{background:#e4e6eb;padding:.3em .5em}
+.spage .surl{background:#fff;border-radius:999px;padding:.15em .7em;overflow-wrap:anywhere}
+.spage .sc{padding:.6em .8em}
+.spage h3{font-family:var(--disp);margin:.1em 0 .3em}
+.spage p{margin:.3em 0}
+.spage .snav{background:#1b1b1b;color:#fff;padding:.3em .6em;font-family:var(--disp);font-weight:700}
+
+/* results */
+.score{font-family:var(--disp);font-weight:700;font-size:2.2em;text-align:center}
+.stars{text-align:center;font-size:1.6em;letter-spacing:.1em}
+.rrow{display:flex;align-items:center;width:100%;border:3px solid var(--black);background:#fff;padding:0;margin:.3em 0;text-align:left;min-height:2em}
+.rrow .l{width:1.8em;align-self:stretch;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:700;flex:none}
+.rrow .t{flex:1;padding:.2em .5em;min-width:0}
+.rrow .s{padding:0 .5em;font-weight:700;flex:none}
+.mist .you{text-decoration:line-through;color:var(--mid)}
+.mist .right{font-weight:700}
+
+@media (min-width:700px){ main{padding:.8rem 1rem 1.4rem} }
+@media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body class="g0">
+<div class="top">
+  <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="addr" id="addr">&#128274; vu23560 &rsaquo; revision</div>
+  <button class="tb" id="bSmall" aria-label="Smaller text">A&minus;</button>
+  <button class="tb" id="bBig" aria-label="Bigger text">A+</button>
+  <button class="tb" id="bMenu" aria-label="Menu">&#9776;</button>
+</div>
+<div class="prog" id="prog" aria-hidden="true"></div>
+<main id="main"><div class="wrap" id="wrap"></div></main>
+<div class="foot" id="foot"></div>
+<div class="saved" id="saved">&#10003; Saved</div>
+<div id="pillRoot"></div>
+
+<script>
+(function(){
+"use strict";
+var KEY = "vu23560_l4_start_to_finish_revision_v2";
+var SIZES = [24, 28, 34, 40], SIZE_NAMES = ["Normal", "Large", "Larger", "Largest"];
+var REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var storeOK = false, FLASH = null, blocked = 0, LOADT = null;
+
+function h(t, a, c){
+  var e = document.createElement(t), k;
+  if(a){ for(k in a){ if(!a.hasOwnProperty(k) || a[k] == null) continue;
+    if(k === "cls") e.className = a[k];
+    else if(k.indexOf("on") === 0) e.addEventListener(k.slice(2), a[k]);
+    else e.setAttribute(k, a[k]); } }
+  if(c != null){ if(!(c instanceof Array)) c = [c];
+    for(var i = 0; i < c.length; i++){ var x = c[i]; if(x == null || x === false) continue;
+      e.appendChild(typeof x === "string" || typeof x === "number" ? document.createTextNode(String(x)) : x); } }
+  return e;
+}
+function shuffle(a){ a = a.slice(); for(var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function range(n){ var a = []; for(var i = 0; i < n; i++) a.push(i); return a; }
+function note(kind, sym, kids){ return h("div", {cls:"note " + (kind || "")}, [h("div", {cls:"badge"}, sym), h("div", {cls:"nb"}, kids)]); }
+
+/* speech for the Hear it buttons */
+var VOICE = null;
+function pickVoice(){ if(!window.speechSynthesis) return; var vs = speechSynthesis.getVoices(), pref = ["en-AU", "en-GB", "en-NZ", "en-US", "en"];
+  for(var p = 0; p < pref.length; p++) for(var i = 0; i < vs.length; i++) if(vs[i].lang && vs[i].lang.replace("_", "-").indexOf(pref[p]) === 0){ VOICE = vs[i]; return; } }
+if(window.speechSynthesis){ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function say(t){ if(!window.speechSynthesis) return; try{ speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(t); if(VOICE) u.voice = VOICE; u.lang = VOICE ? VOICE.lang : "en-AU"; u.rate = 0.8; speechSynthesis.speak(u); }catch(e){} }
+
+/* ===================== CONTENT ===================== */
+var ICSVG = {"folder": "<path d=\"M5 13a3 3 0 0 1 3-3h10l4 4h18a3 3 0 0 1 3 3v19a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z\" fill=\"#e2e2e2\"/><path d=\"M5 19h38\"/>", "email": "<rect x=\"5\" y=\"11\" width=\"38\" height=\"27\" rx=\"3\" fill=\"#e2e2e2\"/><path d=\"M6 13l18 14 18-14\"/>", "browser": "<circle cx=\"24\" cy=\"24\" r=\"18\" fill=\"#e2e2e2\"/><ellipse cx=\"24\" cy=\"24\" rx=\"7.5\" ry=\"18\"/><path d=\"M6 24h36M9 15h30M9 33h30\"/>", "document": "<path d=\"M12 5h17l9 9v29H12z\" fill=\"#e2e2e2\"/><path d=\"M29 5v9h9M17 22h15M17 28h15M17 34h10\"/>", "camera": "<path d=\"M5 17a3 3 0 0 1 3-3h7l3-5h12l3 5h7a3 3 0 0 1 3 3v19a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z\" fill=\"#e2e2e2\"/><circle cx=\"24\" cy=\"26\" r=\"8\" fill=\"#fff\"/>", "sheet": "<rect x=\"6\" y=\"8\" width=\"36\" height=\"32\" rx=\"2\" fill=\"#fff\"/><path d=\"M6 16h36M6 24h36M6 32h36M18 8v32M30 8v32\"/><rect x=\"6\" y=\"8\" width=\"36\" height=\"8\" fill=\"#cfcfcf\"/>", "game": "<path d=\"M14 15h20a10 10 0 0 1 9 14l-3 7a4 4 0 0 1-7 1l-3-5H18l-3 5a4 4 0 0 1-7-1l-3-7a10 10 0 0 1 9-14z\" fill=\"#e2e2e2\"/><path d=\"M15 21v8M11 25h8\"/><circle cx=\"31\" cy=\"23\" r=\"1.5\" fill=\"#1f1f1f\"/><circle cx=\"35\" cy=\"27\" r=\"1.5\" fill=\"#1f1f1f\"/>", "calc": "<rect x=\"10\" y=\"4\" width=\"28\" height=\"40\" rx=\"3\" fill=\"#e2e2e2\"/><rect x=\"14\" y=\"8\" width=\"20\" height=\"9\" fill=\"#fff\"/><path d=\"M16 24h2M23 24h2M30 24h2M16 31h2M23 31h2M30 31h2M16 38h2M23 38h2M30 38h2\" stroke-width=\"4\"/>", "settings": "<path d=\"M21 4h6l1 5 4 2 4-3 4 4-3 4 2 4 5 1v6l-5 1-2 4 3 4-4 4-4-3-4 2-1 5h-6l-1-5-4-2-4 3-4-4 3-4-2-4-5-1v-6l5-1 2-4-3-4 4-4 4 3 4-2z\" fill=\"#e2e2e2\"/><circle cx=\"24\" cy=\"24\" r=\"6\" fill=\"#fff\"/>", "printer": "<rect x=\"13\" y=\"5\" width=\"22\" height=\"11\" fill=\"#fff\"/><rect x=\"5\" y=\"16\" width=\"38\" height=\"17\" rx=\"3\" fill=\"#e2e2e2\"/><rect x=\"13\" y=\"27\" width=\"22\" height=\"16\" fill=\"#fff\"/><path d=\"M17 33h14M17 38h10\"/><circle cx=\"37\" cy=\"21\" r=\"1.5\" fill=\"#1f1f1f\"/>"};
+
+var TBAR = [["camera", "the camera icon"], ["printer", "the printer icon"], ["document", "the document icon"], ["settings", "the settings icon (the gear)"],
+  ["sheet", "the spreadsheet icon"], ["game", "the game icon"], ["browser", "the browser icon (Microsoft Edge)"], ["folder", "the folder icon"],
+  ["calc", "the calculator icon"], ["email", "the email icon"]];
+var SOUNDS = ["/t/ (click-t)", "/d/ (open-d)", "/id/ (print-ed)"];
+var TF2 = ["True", "False"];
+
+var PARTS = [
+  {id:"A", grp:0, title:"Where is it on the screen?", desc:"Find the thing in each place: at the top, on the left, in a corner.", type:"sim", sim:"screen", shuffleTasks:true, tasks:[
+    {t:"Tap the thing in the top left corner.", target:"s_logo", rl:"the logo", why:"The logo is in the top left corner."},
+    {t:"Tap the thing at the top, in the middle.", target:"s_addr", rl:"the address bar", why:"The address bar is at the top."},
+    {t:"Tap the thing in the top right corner.", target:"s_x", rl:"the x", why:"The x is in the top right corner."},
+    {t:"Tap the thing on the left.", target:"s_menu", rl:"the menu", why:"The menu is on the left."},
+    {t:"Tap the thing in the middle.", target:"s_video", rl:"the video", why:"The video is in the middle."},
+    {t:"Tap the thing on the right.", target:"s_search", rl:"the search box", why:"The search box is on the right."},
+    {t:"Tap the thing in the bottom left corner.", target:"s_back", rl:"the Back button", why:"The Back button is in the bottom left corner."},
+    {t:"Tap the thing at the bottom, in the middle.", target:"s_help", rl:"Help", why:"Help is at the bottom."},
+    {t:"Tap the thing in the bottom right corner.", target:"s_print", rl:"the Print button", why:"The Print button is in the bottom right corner."}]},
+  {id:"B", grp:0, title:"The right icon", desc:"Look at the taskbar. Find the icon you need.", type:"sim", sim:"taskbar", shuffleTasks:true, tasks:[
+    {t:"You want to open a website.", target:"browser", rl:"the browser icon (Microsoft Edge)", why:"The browser opens websites. On the class computers, it is Microsoft Edge."},
+    {t:"You want to write a letter.", target:"document", rl:"the document icon", why:"The document icon is a page with lines. You write letters in it."},
+    {t:"You want to read your emails.", target:"email", rl:"the email icon", why:"The email icon looks like an envelope."},
+    {t:"You want to make a table of prices.", target:"sheet", rl:"the spreadsheet icon", why:"A spreadsheet has rows and columns. It is good for tables."},
+    {t:"You want to find a saved file.", target:"folder", rl:"the folder icon", why:"Your saved files are in folders."},
+    {t:"You want to take a photo.", target:"camera", rl:"the camera icon", why:"The camera takes photos."},
+    {t:"You want to add up two numbers quickly.", target:"calc", rl:"the calculator icon", why:"The calculator adds numbers."},
+    {t:"You want to play a game after class.", target:"game", rl:"the game icon", why:"The game icon looks like a game controller."}]},
+  {id:"C", grp:0, title:"Search results", desc:"You searched for north harbour college. Find the parts.", type:"sim", sim:"serp", shuffleTasks:true, tasks:[
+    {t:"Find the ad. Don't open it.", target:"ad", rl:"the ad (it says Sponsored)", why:"It says Sponsored. It is an ad. Skip it."},
+    {t:"Open the college website. It is not the first result.", target:"college", rl:"North Harbour College: courses and student life", why:"This is the real college website."},
+    {t:"Find the web address of the college.", target:"curl", rl:"www.northharbourcollege.edu.au", why:"The grey words above the title are the web address."},
+    {t:"You want a map of the college.", target:"maps", rl:"the word Maps", why:"Maps shows the place on a map."},
+    {t:"You want pictures of the college.", target:"images", rl:"the word Images", why:"Images shows pictures."},
+    {t:"Find the words you searched for.", target:"sbox", rl:"the search box", why:"The search box shows your words: north harbour college."},
+    {t:"Find the news story about a garden.", target:"news", rl:"the news story about a garden", why:"The news story has the word News next to it."},
+    {t:"You want to watch a tour of the college.", target:"video", rl:"the video: A tour of North Harbour College", why:"The video is 3 minutes 12 seconds long."}]},
+  {id:"D", grp:0, title:"Menu, dropdown menu, list", desc:"The menu is open. Find the parts.", type:"sim", sim:"menus", shuffleTasks:true, tasks:[
+    {t:"Find the logo. It takes you to the home page.", target:"logo", rl:"the NHC logo", why:"The logo is at the top, on the left."},
+    {t:"Find the third word from the left on the menu.", target:"studentlife", rl:"Student life", why:"Courses, Study with us, Student life. Student life is third."},
+    {t:"Find the second word from the left on the menu.", target:"studywithus", rl:"Study with us", why:"Courses is first. Study with us is second."},
+    {t:"Find Study spaces in the dropdown menu.", target:"studyspaces", rl:"Study spaces, in the dropdown menu", why:"The dropdown menu opens under Student life."},
+    {t:"Find Study help in the list on the right.", target:"studyhelp", rl:"Study help, in the list on the right", why:"A second list opens on the right of Study spaces."},
+    {t:"Find the Library in the list on the right.", target:"library", rl:"Library, in the list on the right", why:"Library is the first word in the list on the right."},
+    {t:"You want to search this website. Find the search box.", target:"search", rl:"the search box", why:"The search box is at the top, on the right."},
+    {t:"Find the web address.", target:"addr", rl:"the address bar", why:"The web address is in the address bar."},
+    {t:"You finished. Close the website.", target:"x1", rl:"the x on the tab", why:"The x on the tab closes the website."},
+    {t:"Go back to the page before.", target:"back", rl:"the back arrow", why:"The back arrow takes you to the page before."}]},
+  {id:"E", grp:0, title:"Solo run: find it", desc:"Find the computer room times. Then close the website.", type:"sim", sim:"solo1", tasks:[
+    {t:"Your teacher says: Open the browser.", target:"browser", rl:"the browser icon (Microsoft Edge)", why:"The browser opens."},
+    {t:"Click in the search bar. Search for North Harbour College.", target:"sbar", rl:"the search bar", why:"You typed north harbour college. Here are the results."},
+    {t:"Skip the ad. Open the college website.", target:"college", rl:"North Harbour College: courses and student life", why:"The college home page opens."},
+    {t:"Move the mouse to the menu. Select the third word from the left.", target:"studentlife", rl:"Student life", why:"A dropdown menu opens."},
+    {t:"Move the mouse down to Study spaces.", target:"studyspaces", rl:"Study spaces", why:"A list opens on the right."},
+    {t:"Select Computer rooms in the list on the right.", target:"comprooms", rl:"Computer rooms", why:"The Computer rooms page opens."},
+    {t:"Read the page. Tap the opening times.", target:"times", rl:"Monday to Friday, 8 am to 8 pm", why:"Monday to Friday, 8 am to 8 pm."},
+    {t:"Go back to the home page.", target:"logo", rl:"the NHC logo", why:"The logo takes you to the home page."},
+    {t:"You finished. Close the website.", target:"x1", rl:"the x on the tab", why:"You closed the website. Well done!"}]},
+  {id:"F", grp:0, title:"A website for learning English", desc:"Find the parts of the Wattle English home page.", type:"sim", sim:"wattle", shuffleTasks:true, tasks:[
+    {t:"You want the medium level. Find Click here for Level B.", target:"lvlb", rl:"Click here for Level B", why:"Level B is in the middle. It is for learners who can read short texts."},
+    {t:"You are a new learner. Find the easy level.", target:"lvla", rl:"Click here for Level A", why:"Level A is for new learners."},
+    {t:"Who is the website for? Find the answer.", target:"hero", rl:"Free English practice for adults", why:"It is free English practice for adults."},
+    {t:"You want to read about the website. Find About us.", target:"about", rl:"About us, on the menu", why:"About us tells you about the website."},
+    {t:"Find the Listening page on the menu.", target:"listening", rl:"Listening, on the menu", why:"Listening is the second word on the menu."},
+    {t:"Check the web address.", target:"addr", rl:"the address bar", why:"www.wattleenglish.org.au is in the address bar."},
+    {t:"Find the logo.", target:"logo", rl:"the Wattle English logo", why:"The logo is at the top, on the left."}]},
+  {id:"G", grp:0, title:"The listening player", desc:"Use the Level B listening page.", type:"sim", sim:"player", shuffleTasks:true, tasks:[
+    {t:"Open the listening about ferries.", target:"ferries", rl:"Sydney ferries", why:"Sydney ferries is the new listening. It is 2 minutes long."},
+    {t:"Start the listening.", target:"play", rl:"the play button", why:"The play button starts the listening."},
+    {t:"Your phone rings. Stop for a moment.", target:"pause", rl:"the pause button", why:"Pause stops the listening for a short time."},
+    {t:"You missed the last sentence. Hear it again.", target:"back10", rl:"the 10 seconds back button", why:"This button goes back 10 seconds."},
+    {t:"The speaker is too fast.", target:"speed", rl:"the speed button", why:"0.75x makes the speaker slower."},
+    {t:"The sound is too quiet.", target:"volume", rl:"the sound button", why:"The sound button makes it louder."},
+    {t:"You want the activity on paper.", target:"print", rl:"Print version, at the top on the right", why:"Print version is at the top, on the right."},
+    {t:"How long is the listening about the beach? Tap the time.", target:"len1", rl:"3 min, next to A day at Manly Beach", why:"A day at Manly Beach is 3 minutes long."},
+    {t:"You finished. Close the website.", target:"x1", rl:"the x on the tab", why:"The x closes the website."}]},
+  {id:"H", grp:0, title:"Solo run: learn with it", desc:"Do a whole listening. Print it. Close the website.", type:"sim", sim:"solo2", tasks:[
+    {t:"Your teacher says: Open the browser.", target:"browser", rl:"the browser icon (Microsoft Edge)", why:"The browser opens."},
+    {t:"Click in the search bar. Search for Wattle English.", target:"sbar", rl:"the search bar", why:"You typed wattle english. Here are the results."},
+    {t:"Skip the ad. Open Wattle English.", target:"wattle", rl:"Wattle English: free English practice for adults", why:"The Wattle English home page opens."},
+    {t:"Select the medium level: Click here for Level B.", target:"lvlb", rl:"Click here for Level B", why:"The Level B listening page opens."},
+    {t:"Open the listening about ferries.", target:"ferries", rl:"Sydney ferries", why:"The player is ready."},
+    {t:"Play the listening.", target:"play", rl:"the play button", why:"Listen and write the missing words."},
+    {t:"You missed a word. Go back 10 seconds.", target:"back10", rl:"the 10 seconds back button", why:"Now you can hear it again."},
+    {t:"You finished the gaps. Open the print page.", target:"print", rl:"Print version", why:"The print box opens."},
+    {t:"Print one copy.", target:"printbtn", rl:"the Print button", why:"The page goes to the printer."},
+    {t:"You finished. Close the website.", target:"x1", rl:"the x on the tab", why:"You closed the website. Well done!"}]},
+
+  {id:"I", grp:1, title:"New expressions", desc:"Bella and Nam's expressions. What do they mean?", type:"q", shuffleQ:true, items:[
+    {tag:"Expression", q:"\"Got a sec?\" What does it mean?", opts:["Do you have a minute to help me?", "Do you have a second phone to lend me?", "Did you get the message I sent you?"], why:"Got a sec? = Do you have a minute? A sec is a second."},
+    {tag:"Expression", q:"\"How's it going?\" What does it mean?", opts:["How are you?", "Where are you going?", "How does it work?"], why:"How's it going? is a friendly hello. It means How are you?"},
+    {tag:"Expression", q:"\"Give me a sec.\" What does it mean?", opts:["Please wait a moment.", "Please give me something.", "Please say it again."], why:"Give me a sec = wait a moment. The page is loading."},
+    {tag:"Expression", q:"\"No dramas.\" What does it mean?", opts:["That's fine. It's not a problem.", "There is nothing good on TV tonight.", "Please stop talking and listen to me."], why:"No dramas = no problem. It's OK."},
+    {tag:"Expression", q:"\"Hang on, you've lost me.\" What does it mean?", opts:["Wait. I don't understand.", "Wait. I can't find my phone.", "Wait. You are late."], why:"You've lost me = I can't follow you. Please say it again."},
+    {tag:"Expression", q:"\"Yep, that's the one.\" What does it mean?", opts:["Yes, that's exactly right.", "Yes, there is only one of them left.", "Yes, it is the number one website."], why:"That's the one = that's the right one."},
+    {tag:"Expression", q:"\"Gotcha.\" What does it mean?", opts:["OK, I understand now.", "I caught you doing something wrong!", "I have got your phone in my bag."], why:"Gotcha = got you = I understand."},
+    {tag:"Expression", q:"\"You're a legend.\" What does it mean?", opts:["Thank you. You're really helpful.", "You are very old and you know a lot.", "You are a famous person in a story."], why:"You're a legend = you're great. Thanks for the help."},
+    {tag:"Expression", q:"Bella says, \"My one at home doesn't work.\" What does \"my one\" mean here?", opts:["The printer that is mine.", "The first printer I ever bought.", "The only friend I have at home."], why:"my one = the one that is mine. Bella's printer at home doesn't work."},
+    {tag:"Expression", q:"\"Have a good one.\" When do you say it?", opts:["When you say goodbye.", "When you say hello to a person.", "When you say sorry for a mistake."], why:"Have a good one = have a good day. You say it at the end."}]},
+  {id:"J", grp:1, title:"Places and order on a screen", desc:"Places: at the top, on the left, in the top left corner. Order: first, second, third.", type:"q", shuffleQ:true, items:[
+    {tag:"Place", q:"The logo is ___ the top left corner.", opts:["in", "on", "at"], why:"in the top left corner. Corners use in."},
+    {tag:"Place", q:"The address bar is ___ the top.", opts:["at", "in", "on"], why:"at the top, at the bottom."},
+    {tag:"Place", q:"The menu is ___ the left.", opts:["on", "in", "at"], why:"on the left, on the right."},
+    {tag:"Place", q:"The video is ___ the middle.", opts:["in", "on", "at"], why:"in the middle."},
+    {tag:"Place", q:"Which one is right?", opts:["It's at the bottom.", "It's in the bottom.", "It's on the bottom."], why:"at the top, at the bottom. Not: in the bottom."},
+    {tag:"Place", q:"Which one is right?", opts:["It's in the top right corner.", "It's on the top right corner.", "It's at the top right corners."], why:"in the top right corner."},
+    {tag:"Order", q:"Library, Computer rooms, Study help, Quiet rooms. Computer rooms is the ___ one from the top.", opts:["second", "two", "fourth"], why:"first, second, third. Computer rooms is second."},
+    {tag:"Order", q:"Which one is right?", opts:["the second one from the top", "the second one of the top", "the number two one from the top"], why:"the second one from the top."},
+    {tag:"Place", q:"The menu is ___ the logo.", opts:["under", "between", "at"], why:"The menu is under the logo."},
+    {tag:"Place", q:"Print version is in the top right ___ .", opts:["corner", "middle", "bottom"], why:"top right corner = at the top, on the right."},
+    {tag:"Order", q:"Courses, Study with us, Student life. Student life is the ___ word from the left.", opts:["third", "three", "second"], why:"first, second, third."},
+    {tag:"Place", q:"Type the words ___ the search bar.", opts:["in", "on", "at"], why:"in the search bar, in the address bar."}]},
+  {id:"K", grp:1, title:"Say it back to check", desc:"Choose the best check question for each step.", type:"q", shuffleQ:true, intro:"sayback", items:[
+    {tag:"Say it back", show:"Click on the third word from the left.", q:"Which check question is best?", opts:["So, the third word from the left?", "What do you want me to do now?", "Can you click it for me, please?"], why:"Say the step back. Then your helper can say yes or no."},
+    {tag:"Say it back", show:"Move the mouse to Study spaces, then click on Computer rooms.", q:"Which check question is best?", opts:["So I move to Study spaces, then click Computer rooms?", "Can you please do all of these steps for me on my computer?", "Computer rooms? What is a computer room for?"], why:"Say both steps back, in order."},
+    {tag:"Say it back", show:"Print version is at the top, on the right.", q:"Which check question is best?", opts:["So, at the top on the right?", "Do I print it now, before I finish?", "Where is the printer in this room?"], why:"Say the place back: at the top, on the right."},
+    {tag:"Say it back", show:"Click here for Level B.", q:"Which check question is best?", opts:["Do you mean Level B, the medium level?", "Can you say all the levels again, please?", "Is Level C better for me, do you think?"], why:"Do you mean ...? checks the step."},
+    {tag:"Say it back", show:"The class starts at 2.15.", q:"You are not sure. What do you say?", opts:["Sorry, was that 2.15 or 2.50?", "OK, the class starts at 2.50.", "Can you say all of it again?"], why:"Check the number. Say both numbers."},
+    {tag:"Say it back", show:"It's the second result, under the ad.", q:"Which check question is best?", opts:["So, the second one, under the ad?", "So I click on the ad at the top?", "So, the first one, at the very top?"], why:"Say the order and the place back."}]},
+  {id:"L", grp:1, title:"Say it: -ed endings", desc:"Listen to the verb. Which -ed sound is it?", type:"q", shuffleQ:true, intro:"ed", items:[
+    {k:"fixed", tag:"Which sound?", hear:"clicked", q:"clicked", opts:SOUNDS, ans:0, why:"k + ed sounds like t: click-t."},
+    {k:"fixed", tag:"Which sound?", hear:"opened", q:"opened", opts:SOUNDS, ans:1, why:"n + ed sounds like d: open-d."},
+    {k:"fixed", tag:"Which sound?", hear:"printed", q:"printed", opts:SOUNDS, ans:2, why:"t + ed is a new syllable: print-ed."},
+    {k:"fixed", tag:"Which sound?", hear:"typed", q:"typed", opts:SOUNDS, ans:0, why:"p + ed sounds like t: type-t."},
+    {k:"fixed", tag:"Which sound?", hear:"logged", q:"logged", opts:SOUNDS, ans:1, why:"g + ed sounds like d: log-d."},
+    {k:"fixed", tag:"Which sound?", hear:"needed", q:"needed", opts:SOUNDS, ans:2, why:"d + ed is a new syllable: need-ed."},
+    {k:"fixed", tag:"Which sound?", hear:"searched", q:"searched", opts:SOUNDS, ans:0, why:"ch + ed sounds like t: search-t."},
+    {k:"fixed", tag:"Which sound?", hear:"played", q:"played", opts:SOUNDS, ans:1, why:"ay + ed sounds like d: play-d."},
+    {k:"fixed", tag:"Which sound?", hear:"selected", q:"selected", opts:SOUNDS, ans:2, why:"t + ed is a new syllable: select-ed."}]},
+  {id:"M", grp:1, title:"Web addresses", desc:"Read and write web addresses. Watch the endings.", type:"q", shuffleQ:true, intro:"endings", items:[
+    {tag:"Write what you hear", hear:"double u, double u, double u, dot, world pen pals, dot org", show:"You hear: double u, double u, double u, dot, world pen pals, dot org", q:"Which is right?", opts:["www.worldpenpals.org", "www.worldpenpals.org.au", "www.worldpenpals.com.au"], why:"dot org, with no a u. Don't add .au."},
+    {tag:"Write what you hear", hear:"double u, double u, double u, dot, north harbour college, dot e d u, dot a u", show:"You hear: double u, double u, double u, dot, north harbour college, dot e d u, dot a u", q:"Which is right?", opts:["www.northharbourcollege.edu.au", "www.northharbourcollege.org.au", "www.northharbourcollege.edu"], why:"dot e d u dot a u = .edu.au. It is for a school or a college."},
+    {tag:"Write what you hear", hear:"double u, double u, double u, dot, wattle english, dot org, dot a u, slash, level, dash, b", show:"You hear: ... wattle english, dot org, dot a u, slash, level, dash, b", q:"Which is right?", opts:["www.wattleenglish.org.au/level-b", "www.wattleenglish.org.au-level/b", "www.wattleenglish.org/level-b"], why:"slash = /. dash = -."},
+    {tag:"Say it", show:"www.easyreadersclub.org", q:"How do you say the end?", opts:["dot org", "dot org dot a u", "dot com"], why:"There is no .au here. Just say dot org."},
+    {tag:"Say it", show:"www.harbourskills.edu.au", q:"How do you say the end?", opts:["dot e d u dot a u", "dot e d u dot org", "dot ed dot a u"], why:"Say each letter: e d u, then a u."},
+    {tag:"Endings", q:"Which ending is often for a school, a college or a university?", opts:[".edu.au", ".com.au", ".org"], why:".edu.au is for education."},
+    {tag:"Endings", q:"Which ending is often for a business?", opts:[".com.au", ".edu.au", ".org.au"], why:".com.au is often a business in Australia."}]},
+  {id:"N", grp:1, title:"Three tenses you know", desc:"Simple present, present continuous, past simple.", type:"q", shuffleQ:true, items:[
+    {tag:"Find someone who", q:"___ you watch a video in English online last week?", opts:["Did", "Do", "Have"], why:"last week = past simple: Did you watch ...?"},
+    {tag:"Find someone who", q:"Which website ___ you use last week?", opts:["did", "do", "have"], why:"Which website did you use? Past simple question."},
+    {tag:"Find someone who", q:"\"Did you print a page last week?\" \"Yes, I ___ .\"", opts:["did", "do", "printed"], why:"Did you ...? Yes, I did. / No, I didn't."},
+    {tag:"Tense", q:"Look! The video ___ now.", opts:["is playing", "was playing", "plays"], why:"Look! and now = present continuous."},
+    {tag:"Tense", q:"The back arrow always ___ you to the page before.", opts:["takes", "is taking", "took"], why:"always = how it works. Simple present: takes."},
+    {tag:"Tense", q:"Yesterday Jane ___ Level B.", opts:["chose", "chooses", "is choosing"], why:"Yesterday = finished. Past simple: chose."},
+    {tag:"Tense", q:"Shaotian usually ___ the listening activities.", opts:["prints", "is printing", "printed"], why:"usually = a habit. Simple present: prints."},
+    {tag:"Tense", q:"Sorry, I can't talk. I ___ in the gaps right now.", opts:["'m filling", "was filling", "fill"], why:"right now = present continuous."},
+    {tag:"Tense", q:"___ you close the website at the end of class yesterday?", opts:["Did", "Do", "Are"], why:"yesterday = past. Did you ...?"},
+    {tag:"Tense", q:"Last night the page ___ , so I clicked the refresh button.", opts:["didn't load", "doesn't load", "isn't loading"], why:"Last night = finished. Past simple negative: didn't load."},
+    {tag:"Tense", q:"Bella ___ the library computers. Bella has a laptop at home.", opts:["doesn't use", "isn't using", "didn't used"], why:"A habit: Bella doesn't use them."}]},
+  {id:"O", grp:1, title:"The present perfect", desc:"Have you ever ...? already, just, yet.", type:"q", shuffleQ:true, items:[
+    {tag:"Present perfect", q:"___ you ever used Wattle English?", opts:["Have", "Did", "Were"], why:"Have you ever ...? asks about experience."},
+    {tag:"Present perfect", q:"Wait. The page ___ yet.", opts:["hasn't loaded", "didn't load", "isn't loading"], why:"yet = the result now. Present perfect: hasn't loaded."},
+    {tag:"Present perfect", q:"Jane ___ already chosen Level B.", opts:["has", "have", "is"], why:"Jane = one person: has + chosen."},
+    {tag:"Present perfect", q:"I ___ just found a good website.", opts:["'ve", "'s", "was"], why:"I've just found ... = I have just found ..."},
+    {tag:"Past or present perfect?", q:"I ___ the answers yesterday.", opts:["printed", "have printed", "'ve printed"], why:"yesterday = a finished time. Use the past simple."},
+    {tag:"Past or present perfect?", q:"___ you finished the listening yet?", opts:["Have", "Did", "Were"], why:"yet = present perfect: Have you finished ... yet?"},
+    {tag:"Past participle", q:"choose → have ___", opts:["chosen", "chose", "choosed"], why:"choose, chose, chosen."},
+    {tag:"Short answer", q:"\"Have you ever used a college website?\" \"Yes, I ___ .\"", opts:["have", "did", "used"], why:"Have you ...? Yes, I have. / No, I haven't."}]},
+  {id:"P", grp:1, title:"Phrasal verbs and joining words", desc:"Phrasal verbs for web tasks. Joining words: and, but, so, or, because.", type:"q", shuffleQ:true, items:[
+                    {tag:"Phrasal verb", q:"The sound is too quiet. Turn ___ .", opts:["it up", "up it", "it on up"], why:"With it, split the verb: turn it up."},
+    {tag:"Phrasal verb", q:"Which one is right?", opts:["I logged out of the website.", "I logged out from the website.", "I logged out the website."], why:"log out of the website."},
+    {tag:"Phrasal verb", q:"Which one is right?", opts:["Please click on it.", "Please click it on.", "Please click on."], why:"click on it. Not: click it on."},
+    {tag:"Joining word", q:"The first result looks good, ___ it's an ad.", opts:["but", "so", "and"], why:"but shows a difference."},
+    {tag:"Joining word", q:"The speaker was very fast, ___ I clicked the speed button.", opts:["so", "but", "or"], why:"so shows the result."},
+    {tag:"Joining word", q:"You can print the page ___ take a screenshot.", opts:["or", "so", "but"], why:"or gives a choice."},
+    {tag:"Joining word", q:"I closed the website ___ I finished the activity.", opts:["because", "however", "or"], why:"because gives the reason. No comma before because."}]},
+  {id:"Q", grp:1, title:"Answer the teacher", desc:"Your teacher asks a question. Choose the best answer.", type:"q", shuffleQ:true, items:[
+    {tag:"Teacher's question", q:"What type of information can you find on the internet?", opts:["You can find news, pictures and videos on the internet.", "Yes, I can find a lot of information on the internet at home.", "The internet is on my computer and on my phone at home."], why:"Answer the question in a full sentence. Give examples."},
+    {tag:"Teacher's question", q:"What can you use a website for?", opts:["You can use a website for shopping and for learning English.", "A website is on the internet, and it is not on paper like a book.", "I use my phone and my computer for a website on most days."], why:"Say what you can do with a website."},
+    {tag:"Teacher's question", q:"Which icon opens a browser?", opts:["The Microsoft Edge icon opens a browser.", "Yes, an icon opens a browser on the computer when you click it.", "A browser opens a new window on the screen of the computer."], why:"Name the icon: Microsoft Edge."},
+    {tag:"Teacher's question", q:"Who would use Wattle English?", opts:["Adults who are learning English would use it.", "Wattle English is a free website with three levels and listenings.", "I would use it on a computer at home after my English class."], why:"Who = people. Adults who are learning English."},
+    {tag:"Teacher's question", q:"How do you do the listening?", opts:["I play it and write the missing words.", "The listening is about Sydney ferries.", "I like listening to the radio at home."], why:"How = the steps: play it, then write the words."},
+    {tag:"Teacher's question", q:"You are finished. What do you do now?", opts:["I log out and close the website.", "I am finished now, thank you.", "I do the listening again and again."], why:"Safe practice: log out and close the website."}]},
+  {id:"R", grp:1, title:"Your teacher's words", desc:"Words your teacher says in the internet task: select, type in, the cursor, upper right.", type:"q", shuffleQ:true, items:[
+    {tag:"Teacher's words", q:"Your teacher shows four icons: Word, Excel, Microsoft Edge and Xbox. Which one is a browser?", opts:["Microsoft Edge", "Excel", "Xbox"], why:"Microsoft Edge opens websites. Word is for letters, Excel is for tables and Xbox is for games."},
+    {tag:"Teacher's words", q:"Your teacher says: Select Courses. What do you do?", opts:["Click on Courses.", "Say the word Courses.", "Write the word Courses on paper."], why:"Select = click on."},
+    {tag:"Teacher's words", q:"Your teacher says: Type in north harbour college. What do you do?", opts:["Write the words with the keyboard.", "Say the words to a partner.", "Click on the logo."], why:"Type in = write with the keyboard."},
+    {tag:"Teacher's words", q:"Your teacher says: Move the cursor to the top. What is the cursor?", opts:["the arrow for the mouse on the screen", "the menu under the logo", "the x on the tab"], why:"The cursor is the arrow you move with the mouse."},
+    {tag:"Teacher's words", q:"Your teacher says: Print version is in the upper right corner. Where is it?", opts:["at the top, on the right", "at the bottom, on the right", "at the top, on the left"], why:"upper right = top right."},
+    {tag:"Teacher's words", q:"Your teacher says: What is the website address? Write it. What do you write?", opts:["www.wattleenglish.org.au", "Wattle English", "Level B, the medium level"], why:"The address is in the address bar. You don't need https://."},
+    {tag:"Teacher's words", q:"Your teacher says: Close the website. What can you do?", opts:["Click the x on the tab, or right-click on the tab and choose Close tab.", "Click on the logo.", "Turn off the screen."], why:"The x on the tab closes the website. The logo takes you to the home page."},
+    {tag:"Teacher's words", q:"Your teacher says: Go back to the home page. What do you click?", opts:["the logo, or the back arrow", "the x on the tab", "Print version"], why:"The logo takes you to the home page, the first page of the website."}]}
+];
+var PCOL = {I:["#B35400", "#F7E1CC"], J:["#8A6D00", "#F5EDCC"], K:["#0F7D7D", "#DDF0F0"], L:["#6A4C9C", "#ECE6F5"], M:["#2F5FA8", "#E3EBF7"], N:["#2E7D4F", "#E2F1E7"], O:["#A3462B", "#F6E4DE"], P:["#9C2F6B", "#F5E2EC"], Q:["#1B3A5C", "#E2E9F1"], R:["#5E5E5E", "#ECECEC"]};
+function colOf(P){ if(PCOL[P.id]) return {c:PCOL[P.id][0], ink:"#ffffff", tint:PCOL[P.id][1]}; return {c:"#F5A20F", ink:"#141414", tint:"#FFF0D2"}; }
+var GROUPS = [{t:"Use the computer", c:"#F5A20F"}, {t:"What you know", c:"linear-gradient(90deg,#B35400 0 33%,#6A4C9C 33% 66%,#2F5FA8 66%)"}];
+
+/* give every scored item an id */
+(function(){
+  for(var p = 0; p < PARTS.length; p++){
+    var P = PARTS[p];
+    if(P.type === "q"){ var n = 0; for(var i = 0; i < P.items.length; i++){ if(P.items[i].k !== "page"){ n++; P.items[i].id = P.id + n; } } }
+  }
+})();
+function scored(P){
+  if(P.type === "sim"){ var a = []; for(var i = 0; i < P.tasks.length; i++) a.push(P.id + "t" + i); return a; }
+  var b = []; for(var j = 0; j < P.items.length; j++) if(P.items[j].k !== "page") b.push(P.items[j].id); return b;
+}
+var TOTAL = 0; for(var tp = 0; tp < PARTS.length; tp++) TOTAL += scored(PARTS[tp]).length;
+
+/* ===================== STATE ===================== */
+var S = blank();
+function blank(){ return {v:"menu", p:0, size:1, ans:{}, ord:{}, seq:{}, step:{}, typed:{}, fb:{}, last:null}; }
+function load(){
+  try{ localStorage.setItem("__t", "1"); localStorage.removeItem("__t"); storeOK = true;
+    var raw = localStorage.getItem(KEY); if(raw){ var o = JSON.parse(raw); for(var k in o) if(o.hasOwnProperty(k)) S[k] = o[k]; } }catch(e){ storeOK = false; }
+  if(S.size == null || S.size < 0 || S.size >= SIZES.length) S.size = 1;
+}
+var savedT = null;
+function save(show){
+  if(!storeOK) return;
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ return; }
+  if(show){ var el = document.getElementById("saved"); el.className = "saved on"; clearTimeout(savedT); savedT = setTimeout(function(){ el.className = "saved"; }, 900); }
+}
+function stepOf(P){ return S.step[P.id] || 0; }
+function taskSeq(P){
+  if(!P.shuffleTasks) return range(P.tasks.length);
+  if(!S.seq[P.id]) S.seq[P.id] = shuffle(range(P.tasks.length));
+  return S.seq[P.id];
+}
+function remaining(P){
+  if(P.type === "sim") return P.tasks.length - stepOf(P);
+  var ks = scored(P), r = 0; for(var i = 0; i < ks.length; i++) if(!S.ans[ks[i]]) r++; return r;
+}
+function answeredN(P){ var ks = scored(P), n = 0; for(var i = 0; i < ks.length; i++) if(S.ans[ks[i]]) n++; return n; }
+function rightN(P){ var ks = scored(P), n = 0; for(var i = 0; i < ks.length; i++) if(S.ans[ks[i]] && S.ans[ks[i]].ok) n++; return n; }
+function totals(){ var r = 0, a = 0; for(var i = 0; i < PARTS.length; i++){ r += rightN(PARTS[i]); a += answeredN(PARTS[i]); } return {r:r, a:a}; }
+function partDone(P){ return remaining(P) === 0; }
+
+/* ===================== SIMULATIONS ===================== */
+var CUR = null;
+function hit(id, label, cls, kids){
+  var c = "hit" + (cls ? " " + cls : "");
+  if(FLASH && FLASH.id === id) c += FLASH.ok ? " okf" : " nof";
+  return h("button", {cls:c, "data-hit":id, "aria-label":label, onclick:function(){ simTap(CUR, id, label); }}, kids);
+}
+function isTarget(T, id){ if(T.target instanceof Array) return T.target.indexOf(id) > -1; return T.target === id; }
+function simTap(P, id, label){
+  var st = stepOf(P);
+  if(st >= P.tasks.length) return;
+  var seq = taskSeq(P), ti = seq[st], T = P.tasks[ti], key = P.id + "t" + ti;
+  if(isTarget(T, id)){
+    if(!S.ans[key]) S.ans[key] = {ok:true, pick:label};
+    S.step[P.id] = st + 1; S.fb[P.id] = {ok:true, msg:T.why}; FLASH = {id:id, ok:true};
+  } else {
+    if(!S.ans[key]) S.ans[key] = {ok:false, pick:label};
+    S.fb[P.id] = {ok:false, msg:"That is " + label + ". Try again."}; FLASH = {id:id, ok:false};
+  }
+  save(true); renderKeep();
+}
+
+function tabs(list, plus){
+  var row = h("div", {cls:"tabs"});
+  for(var i = 0; i < list.length; i++){
+    var t = list[i];
+    row.appendChild(h("div", {cls:"tabw" + (t.on ? " on" : "")}, [hit(t.id, t.label, "tabt", t.text), hit(t.xid, t.xlabel, "tabx", "✕")]));
+  }
+  if(plus !== false) row.appendChild(hit("plus", "the plus to open a new tab", "", "+"));
+  return row;
+}
+function tool(url){
+  return h("div", {cls:"tool"}, [
+    hit("back", "the back arrow", "", "←"), hit("fwd", "the forward arrow", "fwd", "→"), hit("refresh", "the refresh button", "", "⟳"),
+    hit("addr", "the address bar", "addr", url ? "🔒 " + url : "Search or type a web address"),
+    hit("star", "the star (save this page)", "", "☆"), hit("dots", "the three dots menu", "", "⋮")]);
+}
+function oneTab(text, url){ return h("div", {cls:"chrome"}, [tabs([{id:"tab1", label:"the tab", text:text, xid:"x1", xlabel:"the x on the tab", on:true}]), tool(url)]); }
+function scrollCol(){ return h("div", {cls:"scol"}, hit("scroll", "the scroll bar", "", h("span", {cls:"thumb"}))); }
+function pageWrap(kids){ return h("div", {cls:"page"}, [h("div", {cls:"pcont"}, kids), scrollCol()]); }
+function doneTargets(P, st){ var seq = taskSeq(P), d = {}; for(var i = 0; i < st; i++){ var t = P.tasks[seq[i]].target; d[t instanceof Array ? t[0] : t] = true; } return d; }
+function closedScreen(msg){
+  return h("div", null, [h("div", {cls:"chrome"}, [h("div", {cls:"tabs"}, [h("div", {cls:"tabw on"}, h("span", {cls:"hit tabt"}, "New tab"))]), tool("")]),
+    h("div", {cls:"blank"}, msg)]);
+}
+
+/* desktop with a taskbar */
+function desktop(done){
+  var bar = h("div", {cls:"tbar4"});
+  var start = h("span", {cls:"startb", "aria-hidden":"true"}); start.innerHTML = '<svg viewBox="0 0 20 20"><rect x="1" y="1" width="8" height="8" fill="#fff"/><rect x="11" y="1" width="8" height="8" fill="#fff"/><rect x="1" y="11" width="8" height="8" fill="#fff"/><rect x="11" y="11" width="8" height="8" fill="#fff"/></svg>';
+  bar.appendChild(start);
+  for(var i = 0; i < TBAR.length; i++){
+    var ic = h("span", {cls:"ic sm"}); ic.innerHTML = '<svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="#1f1f1f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">' + ICSVG[TBAR[i][0]] + '</svg>';
+    bar.appendChild(hit(TBAR[i][0], TBAR[i][1], done && done[TBAR[i][0]] ? "done" : "", ic));
+  }
+  return h("div", {cls:"desk"}, [h("div", {cls:"wall wall4"}, h("span", {cls:"clock"}, [h("b", null, "9:41 am"), h("span", null, "15/10/2026")])), bar]);
+}
+
+/* search */
+function searchHome(){
+  return h("div", null, [h("div", {cls:"chrome"}, [tabs([{id:"tab1", label:"the tab", text:"New tab", xid:"x1", xlabel:"the x on the tab", on:true}]), tool("")]),
+    h("div", {cls:"shome"}, [h("div", {cls:"slogo big4"}, "Searchnow"), hit("sbar", "the search bar", "bigsbar", "🔎 Search the web")])]);
+}
+function res(urlId, urlLabel, url, tId, tLabel, title, desc, pre){
+  return h("div", {cls:"res"}, [
+    h("div", {cls:"row", style:"gap:0"}, [pre || null, hit(urlId, urlLabel, "rurl", url)]),
+    hit(tId, tLabel, "rt", title), h("div", {cls:"rd"}, desc)]);
+}
+function serp(words, results){
+  var tabsS = [["all", "All"], ["images", "Images"], ["maps", "Maps"], ["tnews", "News"], ["tvideos", "Videos"]];
+  var tb = h("div", {cls:"stabs"});
+  for(var i = 0; i < tabsS.length; i++) tb.appendChild(hit(tabsS[i][0], "the word " + tabsS[i][1], i === 0 ? "cur" : "", tabsS[i][1]));
+  return h("div", null, [oneTab(words + " - Searchnow", "www.searchnow.com/?q=" + words.replace(/ /g, "+")),
+    h("div", {cls:"serp row"}, [h("span", {cls:"slogo"}, "Searchnow"), hit("sbox", "the search box", "sbox", words)]), tb].concat(results));
+}
+function collegeSerp(){
+  return serp("north harbour college", [
+    res("adurl", "the web address of the ad", "www.quickstudyonline.com.au", "ad", "the ad (it says Sponsored)", "Study online fast | Enrol today", "Get a certificate in 4 weeks. Pay later.", hit("sponsored", "the word Sponsored", "spons", "Sponsored")),
+    res("curl", "www.northharbourcollege.edu.au", "www.northharbourcollege.edu.au", "college", "North Harbour College: courses and student life", "North Harbour College: courses and student life", "English, computer and work courses for adults. Library and computer rooms."),
+    res("newsurl", "the web address of the news story", "www.northshorenews.com.au › local", "news", "the news story about a garden", "New student garden at North Harbour College", "Students planted a vegetable garden on Friday ...", h("span", {cls:"newsb"}, "News")),
+    res("vurl", "the web address of the video", "www.watchit.com", "video", "the video: A tour of North Harbour College", "▶ A tour of North Harbour College (3:12)", "Walk around the library, the computer rooms and the cafe.")]);
+}
+function wattleSerp(){
+  return serp("wattle english", [
+    res("adurl", "the web address of the ad", "www.englishfastnow.com.au", "ad", "the ad (it says Sponsored)", "Learn English in 7 days | Buy the course", "Speak English like a local in one week. Pay now.", hit("sponsored", "the word Sponsored", "spons", "Sponsored")),
+    res("wurl", "the web address of Wattle English", "www.wattleenglish.org.au", "wattle", "Wattle English: free English practice for adults", "Wattle English: free English practice for adults", "Listen, read and practise at home. Three levels. No cost."),
+    res("nurl", "the web address of the plant shop", "www.wattlenursery.com.au", "nursery", "a shop that sells wattle plants", "Wattle plants for your garden | Wattle Nursery", "Buy Australian plants online. Free delivery in Sydney.")]);
+}
+
+/* North Harbour College */
+function nhcPage(o){
+  var kids = [h("div", {cls:"phead"}, [hit("logo", "the NHC logo", "logo", [h("i", {cls:"th"}, "NHC"), "North Harbour College"]), hit("search", "the search box", "sbox", "Search 🔎")])];
+  var nav = h("div", {cls:"nav"});
+  var items = [["courses", "Courses", "Courses"], ["studywithus", "Study with us", "Study with us"], ["studentlife", "Student life", "Student life ▾"], ["contact", "Contact", "Contact"]];
+  for(var i = 0; i < items.length; i++) nav.appendChild(hit(items[i][0], items[i][1], "", items[i][2]));
+  kids.push(nav);
+  if(o.page === "comp"){
+    kids.push(h("div", {cls:"pbody"}, [h("h3", null, "Computer rooms"), h("p", null, "Use the computers for study, email and printing."),
+      hit("times", "Monday to Friday, 8 am to 8 pm", "infob", [h("b", null, "Opening times"), h("span", null, "Monday to Friday, 8 am to 8 pm")]),
+      hit("where", "Building C, level 2", "infob", [h("b", null, "Where"), h("span", null, "Building C, level 2")]),
+      hit("printers", "the printers information", "infob", [h("b", null, "Printers"), h("span", null, "In every room. Bring your student card.")])]));
+  } else {
+    if(o.drop >= 1){
+      var l1 = [["studyspaces", "Study spaces ›", "Study spaces, in the dropdown menu"], ["clubs", "Clubs and groups", "Clubs and groups, in the dropdown menu"], ["events", "Events", "Events, in the dropdown menu"], ["support", "Student support", "Student support, in the dropdown menu"]];
+      var d1 = h("div", {cls:"drop"});
+      for(var j = 0; j < l1.length; j++) d1.appendChild(hit(l1[j][0], l1[j][2], (o.drop >= 2 && j === 0) ? "open" : "", l1[j][1]));
+      kids.push(d1);
+    }
+    if(o.drop >= 2){
+      var l2 = [["library", "Library"], ["comprooms", "Computer rooms"], ["studyhelp", "Study help"], ["quiet", "Quiet rooms"]];
+      var d2 = h("div", {cls:"drop two"});
+      for(var k = 0; k < l2.length; k++) d2.appendChild(hit(l2[k][0], l2[k][1] + ", in the list on the right", "", l2[k][1]));
+      kids.push(d2);
+    }
+    if(!o.drop) kids.push(h("div", {cls:"herop"}, [h("h3", null, "Learn with us in North Harbour"), h("div", null, "Courses for adults. Day and evening classes.")]));
+  }
+  return h("div", null, [oneTab("North Harbour College", o.page === "comp" ? "www.northharbourcollege.edu.au/computer-rooms" : "www.northharbourcollege.edu.au"), pageWrap(kids)]);
+}
+
+/* Wattle English */
+function weLogo(){ return hit("logo", "the Wattle English logo", "logo", [h("i", {cls:"th we"}, "WE"), "Wattle English"]); }
+function wattleHome(){
+  var lv = [["lvla", "A", "Just starting", "Short words and phrases"], ["lvlb", "B", "Getting better", "Short texts and talks"], ["lvlc", "C", "Confident", "Longer texts and the news"]];
+  var cards = h("div", {cls:"lvls"});
+  for(var i = 0; i < lv.length; i++) cards.appendChild(hit(lv[i][0], "Click here for Level " + lv[i][1], "lvl", [h("span", {cls:"muted"}, "Level " + lv[i][1]), h("b", null, lv[i][2]), h("span", null, lv[i][3]), h("span", {cls:"start"}, "Click here for Level " + lv[i][1] + " →")]));
+  var nav = h("div", {cls:"nav"});
+  var items = [["home", "Home"], ["listening", "Listening"], ["reading", "Reading"], ["about", "About us"]];
+  for(var j = 0; j < items.length; j++) nav.appendChild(hit(items[j][0], items[j][1] + ", on the menu", "", items[j][1]));
+  return h("div", null, [oneTab("Wattle English", "www.wattleenglish.org.au"), pageWrap([
+    h("div", {cls:"phead"}, [weLogo(), hit("search", "the search box", "sbox", "Search 🔎")]), nav,
+    hit("hero", "Free English practice for adults", "thhero", [h("h3", null, "Free English practice for adults"), h("span", null, "Listen, read and practise at home. No cost.")]),
+    h("div", {cls:"pbody"}, [h("h3", null, "Choose your level"), cards])])]);
+}
+function playerBox(o){
+  return h("div", {cls:"player"}, [h("div", {cls:"ptitle"}, "Sydney ferries"), h("div", {cls:"psub"}, "Listen and write the missing words."),
+    h("div", {cls:"ctrls"}, [hit("back10", "the 10 seconds back button", "", "↺10"), hit("play", "the play button", "playb" + (o.playing ? " dim" : ""), "▶"), hit("pause", "the pause button", o.playing ? "" : "dim", "❚❚"),
+      hit("time", "the time: 0:45 / 2:00", "", "0:45 / 2:00"), hit("volume", "the sound button", "", o.loud ? "🔊" : "🔈"), hit("speed", "the speed button", "spd", o.slow ? "0.75x" : "1x")]),
+    hit("bar", "the progress bar", "pbar", h("span", {cls:"pfill", style:"width:" + (o.playing ? 55 : 35) + "%"})),
+    o.printed ? h("div", {cls:"ptext"}, "✅ Printed: 1 copy.") : null]);
+}
+function levelB(o){
+  var rows = [["ferries", "Sydney ferries", "flen", "2 min", true], ["manly", "A day at Manly Beach", "len1", "3 min"], ["bush", "A walk in the bush", "len2", "4 min"], ["markets", "Shopping at the markets", "len3", "3 min"]];
+  var body = h("div", {cls:"lrows"});
+  for(var j = 0; j < rows.length; j++){
+    var r = rows[j];
+    body.appendChild(h("div", {cls:"lrow"}, [hit(r[0], r[1], "ltitle", ["🎧 ", r[1]]), r[4] ? hit("newb", "the New label", "newb", "New") : null, hit(r[2], r[3] + ", next to " + r[1], "ltime", r[3])]));
+  }
+  return h("div", null, [oneTab("Level B: Getting better", "www.wattleenglish.org.au/level-b"), pageWrap([
+    h("div", {cls:"phead"}, [weLogo(), hit("print", "Print version, at the top on the right", "", "🖨 Print version")]),
+    h("div", {cls:"pbody", style:"padding-bottom:0"}, h("h3", null, "Level B: Listening")),
+    o.player ? h("div", {style:"padding:0 .5em .3em"}, playerBox(o)) : null, body])]);
+}
+function printBox(){
+  var rows = [["printer", "Printer", "Library printer 2", "the Printer box"], ["copies", "Copies", "1", "the Copies box"], ["pages", "Pages", "All", "the Pages box"], ["colour", "Colour", "Black and white", "the Colour box"]];
+  var form = h("div", {cls:"pform"});
+  for(var i = 0; i < rows.length; i++) form.appendChild(h("div", {cls:"prow"}, [h("span", {cls:"plab"}, rows[i][1]), hit(rows[i][0], rows[i][3], "sel", [rows[i][2], h("span", {cls:"caret2"}, "▾")])]));
+  return h("div", null, [oneTab("Sydney ferries: print", "www.wattleenglish.org.au/level-b/sydney-ferries/print"),
+    h("div", {cls:"printbg"}, h("div", {cls:"pbox"}, [h("div", {cls:"prhead"}, [h("b", null, "Print"), h("span", {cls:"muted"}, "1 sheet of paper")]),
+      hit("preview", "the picture of the page", "preview", [h("b", null, "Sydney ferries"), h("i"), h("i"), h("i"), h("i")]),
+      form, h("div", {cls:"row", style:"justify-content:flex-end;padding:.3em 0"}, [hit("printbtn", "the Print button", "pillb dark", "Print"), hit("cancel", "the Cancel button", "pillb", "Cancel")])]))]);
+}
+
+var SIMS = {
+  screen: function(P, st){
+    var d = doneTargets(P, st), G = [["s_logo", "logo", "the logo"], ["s_addr", "address bar", "the address bar"], ["s_x", "\u2715", "the x"],
+      ["s_menu", "menu", "the menu"], ["s_video", "\u25B6 video", "the video"], ["s_search", "search box", "the search box"],
+      ["s_back", "\u2190 Back", "the Back button"], ["s_help", "Help", "Help"], ["s_print", "\uD83D\uDDA8 Print", "the Print button"]];
+    var g = h("div", {cls:"scr4"});
+    for(var i = 0; i < G.length; i++) g.appendChild(hit(G[i][0], G[i][2], "scell4" + (d[G[i][0]] ? " done" : ""), G[i][1]));
+    return h("div", null, [h("div", {cls:"scr4top"}, "A screen"), g]);
+  },
+  taskbar: function(P, st){ return desktop(doneTargets(P, st)); },
+  serp: function(){ return collegeSerp(); },
+  menus: function(){ return nhcPage({drop:2}); },
+  solo1: function(P, st){
+    if(st === 0) return desktop();
+    if(st === 1) return searchHome();
+    if(st === 2) return collegeSerp();
+    if(st <= 5) return nhcPage({drop:st - 3});
+    if(st <= 7) return nhcPage({page:"comp"});
+    if(st === 8) return nhcPage({drop:0});
+    return closedScreen("✅ You found the times and closed the website. Well done!");
+  },
+  wattle: function(){ return wattleHome(); },
+  player: function(P, st){ var d = doneTargets(P, st); return levelB({player:true, playing:d.play && !d.pause, slow:d.speed, loud:d.volume}); },
+  solo2: function(P, st){
+    if(st === 0) return desktop();
+    if(st === 1) return searchHome();
+    if(st === 2) return wattleSerp();
+    if(st === 3) return wattleHome();
+    if(st === 4) return levelB({});
+    if(st <= 7) return levelB({player:true, playing:st >= 6});
+    if(st === 8) return printBox();
+    if(st === 9) return levelB({player:true, printed:true});
+    return closedScreen("✅ You did the listening, printed it and closed the website. Well done!");
+  }
+};
+
+function renderSim(P, w){
+  CUR = P;
+  var st = stepOf(P), seq = taskSeq(P), n = P.tasks.length, fb = S.fb[P.id];
+  var box = h("div", {cls:"taskbox", id:"taskbox"});
+  if(fb) box.appendChild(h("div", {cls:"tf " + (fb.ok ? "good" : "bad")}, (fb.ok ? "✓ " : "✗ ") + fb.msg));
+  if(st < n){
+    box.appendChild(h("div", {cls:"tn"}, "Task " + (st + 1) + " of " + n));
+    box.appendChild(h("div", {cls:"tt"}, P.tasks[seq[st]].t));
+  } else {
+    box.appendChild(h("div", {cls:"tt"}, "✅ Part finished! Right first time: " + rightN(P) + " of " + n + "."));
+  }
+  w.appendChild(box);
+  w.appendChild(h("div", {cls:"sim"}, SIMS[P.sim](P, st)));
+  if(st >= n || answeredN(P)) w.appendChild(h("div", {cls:"row"}, h("button", {cls:"chg", onclick:function(){ if(confirmTwice(this, "Tap again to start this part again")){ resetPart(P); renderTop(); } }}, "↻ Try this part again")));
+}
+function resetPart(P){
+  var ks = scored(P); for(var i = 0; i < ks.length; i++) delete S.ans[ks[i]];
+  delete S.step[P.id]; delete S.fb[P.id]; delete S.typed[P.id];
+  if(P.shuffleTasks) S.seq[P.id] = shuffle(range(P.tasks.length));
+  if(P.type === "q") delete S.seq[P.id];
+  save(true);
+}
+function staticPage(){ return h("div"); }
+
+/* notes at the top of some parts */
+var INTRO = {
+  sayback: function(){ return note("", "i", [h("p", null, "Your helper tells you a step. Say it back with So, ...? or Do you mean ...?"), h("p", null, "Then your helper can say Yes or No.")]); },
+  ed: function(){ return note("", "i", [h("p", null, [h("span", {cls:"hl"}, "/t/"), " after p, k, s, ch, sh, f: typed, clicked."]), h("p", null, [h("span", {cls:"hl"}, "/d/"), " after other sounds: opened, played."]), h("p", null, [h("span", {cls:"hl"}, "/id/"), " after t and d: printed, needed."]), h("p", null, "Tap Hear it. Then choose.")]); },
+  endings: function(){ return note("", "i", [h("p", null, ".com.au   .org.au   .edu.au   .org"), h("p", null, "Endings are different. Write only what you hear. .org has no a u.")]); }
+};
+
+/* ===================== QUESTION CARDS ===================== */
+function itemOrder(P){
+  var idx = []; for(var i = 0; i < P.items.length; i++) idx.push(i);
+  if(!P.shuffleQ) return idx;
+  if(!S.seq[P.id]){ S.seq[P.id] = shuffle(idx); save(); }
+  return S.seq[P.id];
+}
+function optOrder(it){
+  if(it.k === "fixed") return range(it.opts.length);
+  if(!S.ord[it.id]){ S.ord[it.id] = shuffle(range(it.opts.length)); save(); }
+  return S.ord[it.id];
+}
+function correctIdx(it){ return it.k === "fixed" ? it.ans : 0; }
+function renderCard(P, it, n){
+  var a = S.ans[it.id], ci = correctIdx(it);
+  var card = h("div", {cls:"card" + (a ? (a.ok ? " ok" : " no") : ""), id:"c-" + it.id});
+  card.appendChild(h("div", {cls:"chead"}, [h("span", {cls:"num"}, String(n)), it.tag ? h("span", {cls:"tag"}, it.tag) : null,
+    (it.sayw || it.hear) && window.speechSynthesis ? h("button", {cls:"say", onclick:function(){ say(it.sayw || it.hear); }}, "\uD83D\uDD0A Hear it") : null]));
+  if(it.show) card.appendChild(h("div", {cls:"showtxt"}, it.show));
+  if(it.sayw) card.appendChild(h("div", {cls:"stress"}, it.q));
+  else card.appendChild(h("div", {cls:"q"}, it.q));
+  if(it.pg) card.appendChild(h("button", {cls:"chg", style:"margin:0 0 .3em", onclick:function(){ var pg = document.getElementById("page-" + it.pg); if(pg) pg.scrollIntoView({behavior:REDUCED ? "auto" : "smooth"}); }}, "\u2191 See the page"));
+  var ord = optOrder(it);
+  for(var j = 0; j < ord.length; j++){
+    (function(oi){
+      var cls = "opt", mk = "";
+      if(a){ if(oi === ci){ cls += " right"; mk = "\u2713"; } else if(a.pick === it.opts[oi]){ cls += " wrong"; mk = "\u2717"; } else cls += " dim"; }
+      card.appendChild(h("button", {cls:cls, onclick:function(){
+        if(S.ans[it.id]) return;
+        S.ans[it.id] = {ok:oi === ci, pick:it.opts[oi]}; S.last = P.id; save(true); renderKeep();
+      }}, [h("span", {cls:"ol"}, "ABCDE".charAt(j)), h("span", {cls:"tx"}, it.opts[oi]), mk ? h("span", {cls:"mk"}, mk) : null]));
+    })(ord[j]);
+  }
+  if(a){
+    card.appendChild(h("div", {cls:"fb" + (a.ok ? " good" : "")}, [h("b", null, a.ok ? "Yes! That's right." : "Not quite. The answer is: " + it.opts[ci]), it.why]));
+    card.appendChild(h("button", {cls:"chg", onclick:function(){ delete S.ans[it.id]; save(true); renderKeep(); }}, "\u21BA Change my answer"));
+  }
+  return card;
+}
+function renderQ(P, w){
+  if(P.intro && INTRO[P.intro]) w.appendChild(INTRO[P.intro]());
+  var ord = itemOrder(P), n = 0;
+  for(var i = 0; i < ord.length; i++){
+    var it = P.items[ord[i]];
+    if(it.k === "page"){ w.appendChild(staticPage(it.page)); continue; }
+    n++; w.appendChild(renderCard(P, it, n));
+  }
+}
+
+/* ===================== VIEWS ===================== */
+var main = document.getElementById("main"), wrap = document.getElementById("wrap"), foot = document.getElementById("foot");
+function setAddr(t){ document.getElementById("addr").textContent = "\uD83D\uDD12 vu23560 \u203A revision" + (t ? " \u203A " + t : ""); }
+function setProg(){
+  var pg = document.getElementById("prog"); pg.innerHTML = "";
+  for(var i = 0; i < PARTS.length; i++) pg.appendChild(h("i", {cls:partDone(PARTS[i]) || (S.v === "part" && S.p === i) ? "on" : "", style:"background:" + colOf(PARTS[i]).c}));
+}
+function confirmTwice(btn, msg){
+  if(btn.getAttribute("data-armed") === "1") return true;
+  btn.setAttribute("data-armed", "1"); var old = btn.textContent; btn.textContent = msg;
+  setTimeout(function(){ if(btn.parentNode){ btn.removeAttribute("data-armed"); btn.textContent = old; } }, 3000);
+  return false;
+}
+function sbar(l, t){ return h("div", {cls:"sbar"}, [h("div", {cls:"blk"}, l), h("div", {cls:"ttl"}, t)]); }
+
+function menuTile(P, i){
+  var tot = scored(P).length, an = answeredN(P), done = partDone(P), sc;
+  if(done) sc = h("span", {cls:"sc done"}, "Score: " + rightN(P) + " / " + tot);
+  else if(an || stepOf(P)) sc = h("span", {cls:"sc"}, (P.type === "sim" ? stepOf(P) : an) + " of " + tot + (P.type === "sim" ? " done" : " answered"));
+  var g = colOf(P);
+  return h("button", {cls:"mtile", style:"border-bottom-color:" + g.c, onclick:function(){ openPart(i); }}, [
+    h("span", {cls:"l", style:"background:" + g.c + ";color:" + g.ink}, P.id),
+    h("span", {cls:"t"}, [h("b", null, P.title), h("span", {cls:"d"}, P.desc), sc])]);
+}
+function renderMenu(){
+  document.body.className = "g0"; setAddr("menu");
+  var w = wrap;
+  w.appendChild(h("div", {cls:"hero"}, [h("div", {cls:"hbar"}, "\u25CF\u25CF\u25CF  \uD83D\uDD12 vu23560 \u203A lesson-4 \u203A revision"),
+    h("div", {cls:"panel"}, [h("div", {cls:"eyebrow"}, "Access the internet and email \u00B7 EAL Level 2"), h("div", {cls:"big"}, "Start to finish online"), h("div", null, "Revision: do whole tasks on the computer, then check what you know.")])]));
+  var t = totals();
+  if(t.a > 0){
+    var lp = S.last ? PARTS[indexOfPart(S.last)] : null, next = firstOpen();
+    w.appendChild(h("div", {cls:"welcome"}, [h("b", null, "Welcome back! \uD83D\uDC4B "), lp ? "You were on Part " + lp.id + ": " + lp.title + "." : "",
+      h("div", {cls:"row", style:"margin-top:.3em"}, [next > -1 ? h("button", {cls:"bb solid", onclick:function(){ openPart(next); }}, "Continue \u25B6") : h("button", {cls:"bb solid", onclick:function(){ go("results"); }}, "See my results")])]));
+  }
+  if(!storeOK) w.appendChild(note("warn", "!", h("p", null, "This page cannot save on this phone. You can still use it.")));
+  for(var g = 0; g < GROUPS.length; g++){
+    w.appendChild(h("div", {cls:"grouphead"}, [h("span", {cls:"sw", style:"background:" + GROUPS[g].c}), GROUPS[g].t]));
+    for(var i = 0; i < PARTS.length; i++) if(PARTS[i].grp === g) w.appendChild(menuTile(PARTS[i], i));
+  }
+  w.appendChild(h("div", {cls:"grouphead"}, [h("span", {cls:"sw", style:"background:#6B6B6B"}), "Finish"]));
+  w.appendChild(h("button", {cls:"mtile", style:"border-bottom-color:#6B6B6B", onclick:function(){ go("results"); }}, [h("span", {cls:"l", style:"background:#6B6B6B;color:#fff"}, "\u2605"),
+    h("span", {cls:"t"}, [h("b", null, "My results"), h("span", {cls:"d"}, "See your score. Go over your mistakes.")])]));
+  if(t.a > 0) w.appendChild(h("div", {cls:"row", style:"margin-top:.8em"}, h("button", {cls:"chg", onclick:function(){ if(confirmTwice(this, "Tap again to clear everything")){ var sz = S.size; S = blank(); S.size = sz; save(true); renderTop(); } }}, "Start again from the beginning")));
+  foot.innerHTML = "";
+  var nx = firstOpen();
+  foot.appendChild(h("button", {cls:"bb go", onclick:function(){ openPart(nx > -1 ? nx : 0); }}, nx > 0 ? "Continue \u25B6" : "Start \u25B6"));
+}
+function indexOfPart(id){ for(var i = 0; i < PARTS.length; i++) if(PARTS[i].id === id) return i; return 0; }
+function firstOpen(){ for(var i = 0; i < PARTS.length; i++) if(!partDone(PARTS[i])) return i; return -1; }
+
+function renderPart(){
+  var P = PARTS[S.p];
+  document.body.className = "g" + P.grp; var co = colOf(P); document.body.style.setProperty("--pc", co.c); document.body.style.setProperty("--pc-ink", co.ink); document.body.style.setProperty("--pc-tint", co.tint); document.body.style.setProperty("--tagc", PCOL[P.id] ? co.c : "#8A5300"); setAddr("part-" + P.id.toLowerCase());
+  var w = wrap;
+  w.appendChild(sbar(P.id, P.title));
+  w.appendChild(h("div", {cls:"lede"}, P.desc));
+  var tot = scored(P).length, an = P.type === "sim" ? stepOf(P) : answeredN(P);
+  w.appendChild(h("div", {cls:"live" + (P.type === "sim" ? " small" : "")}, [P.type === "sim" ? "Tasks done: " + an + " of " + tot + ". Right first time: " + rightN(P) + "." : "This part: " + rightN(P) + " correct out of " + answeredN(P) + " answered.",
+    h("div", {cls:"bar"}, h("i", {style:"width:" + Math.round(an / tot * 100) + "%"}))]));
+  if(P.type === "sim") renderSim(P, w); else renderQ(P, w);
+  if(partDone(P)) w.appendChild(partSummary(P));
+  else if(P.type === "q" && answeredN(P)) w.appendChild(h("div", {cls:"row", style:"margin-top:.6em"}, h("button", {cls:"chg", onclick:function(){ if(confirmTwice(this, "Tap again to clear this part")){ resetPart(P); renderTop(); } }}, "\u21BB Try this part again")));
+  renderPartFoot(P);
+  updatePill(P);
+}
+function partSummary(P){
+  var ks = scored(P), wrong = [];
+  for(var i = 0; i < ks.length; i++) if(S.ans[ks[i]] && !S.ans[ks[i]].ok) wrong.push(ks[i]);
+  var box = h("div", {cls:"summary"}, [h("b", null, "\uD83C\uDF89 Page finished! You got " + rightN(P) + " of " + ks.length + " right.")]);
+  if(wrong.length && P.type === "q"){
+    box.appendChild(h("div", {cls:"muted"}, "Look at these again:"));
+    var r = h("div");
+    for(var j = 0; j < wrong.length; j++){ (function(k){ r.appendChild(h("button", {cls:"mchip", onclick:function(){ flashCard(k); }}, "Question " + cardNum(P, k))); })(wrong[j]); }
+    box.appendChild(r);
+  }
+  if(P.type === "q") box.appendChild(h("button", {cls:"chg", onclick:function(){ if(confirmTwice(this, "Tap again to clear this part")){ resetPart(P); renderTop(); } }}, "\u21BB Try this part again"));
+  return box;
+}
+function cardNum(P, key){ var ord = itemOrder(P), n = 0; for(var i = 0; i < ord.length; i++){ var it = P.items[ord[i]]; if(it.k === "page") continue; n++; if(it.id === key) return n; } return "?"; }
+function flashCard(key){
+  var c = document.getElementById("c-" + key); if(!c) return;
+  c.scrollIntoView({behavior:REDUCED ? "auto" : "smooth", block:"center"});
+  c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash");
+}
+function firstUnanswered(P){
+  if(P.type === "sim") return document.getElementById("taskbox");
+  var ord = itemOrder(P);
+  for(var i = 0; i < ord.length; i++){ var it = P.items[ord[i]]; if(it.k !== "page" && !S.ans[it.id]) return document.getElementById("c-" + it.id); }
+  return null;
+}
+function renderPartFoot(P){
+  foot.innerHTML = "";
+  var left = remaining(P);
+  foot.appendChild(h("button", {cls:"bb menub", "aria-label":"Main menu", onclick:function(){ go("menu"); }}, "\u2630 Menu"));
+  foot.appendChild(h("button", {cls:"bb", "aria-label":S.p > 0 ? "Back to Part " + PARTS[S.p - 1].id : "Back to the menu", onclick:function(){ if(S.p > 0) openPart(S.p - 1); else go("menu"); }}, S.p > 0 ? "\u25C0 " + PARTS[S.p - 1].id : "\u25C0 Back"));
+  var last = S.p === PARTS.length - 1;
+  if(left > 0){
+    foot.appendChild(h("button", {cls:"bb wait", onclick:function(){
+      blocked++;
+      var el = firstUnanswered(P);
+      if(el){ el.scrollIntoView({behavior:REDUCED ? "auto" : "smooth", block:P.type === "sim" ? "start" : "center"}); el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+      if(blocked >= 2) renderPartFoot(P);
+    }}, left + " left \u25BE"));
+    if(blocked >= 2) foot.appendChild(h("button", {cls:"bb skip", onclick:function(){ blocked = 0; if(last) go("results"); else openPart(S.p + 1); }}, "Skip this page for now"));
+  } else {
+    foot.appendChild(h("button", {cls:"bb go", onclick:function(){ if(last) go("results"); else openPart(S.p + 1); }}, last ? "Results \u2605" : "Next: " + PARTS[S.p + 1].id + " \u25B6"));
+  }
+}
+var pillEl = null;
+function updatePill(P){
+  var root = document.getElementById("pillRoot"); root.innerHTML = ""; pillEl = null;
+  if(!P || P.type === "sim") return;
+  var left = remaining(P); if(!left) return;
+  pillEl = h("button", {cls:"pill", onclick:function(){ var el = firstUnanswered(P); if(el){ el.scrollIntoView({behavior:REDUCED ? "auto" : "smooth", block:"center"}); el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); } }},
+    left + " left. Take me there \u25BE");
+  root.appendChild(pillEl); pillCheck();
+}
+function pillCheck(){
+  if(!pillEl || S.v !== "part") return;
+  var el = firstUnanswered(PARTS[S.p]); if(!el){ pillEl.style.display = "none"; return; }
+  var r = el.getBoundingClientRect(), m = main.getBoundingClientRect();
+  pillEl.style.display = (r.bottom > m.top && r.top < m.bottom) ? "none" : "";
+}
+main.addEventListener("scroll", pillCheck);
+
+function stars(pct){ return pct >= 90 ? 5 : pct >= 75 ? 4 : pct >= 60 ? 3 : pct >= 40 ? 2 : 1; }
+function renderResults(){
+  document.body.className = "g2"; setAddr("results");
+  var w = wrap, t = totals(), pct = Math.round(t.r / TOTAL * 100), s = stars(pct);
+  var bands = ["", "Keep going. Try each part again. Ask your teacher for help.", "You are getting there. Go over your mistakes with a partner.",
+    "Good work. Go over your mistakes. Then try those parts again.", "Great work! Look at your mistakes, then try them again.", "Excellent! You are ready for your internet task."];
+  w.appendChild(sbar("\u2605", "My results"));
+  w.appendChild(h("div", {cls:"card", style:"border-bottom-color:#F5A20F"}, [h("div", {cls:"score"}, t.r + " / " + TOTAL),
+    h("div", {cls:"stars", "aria-label":s + " stars out of 5"}, "\u2605\u2605\u2605\u2605\u2605".slice(0, s) + "\u2606\u2606\u2606\u2606\u2606".slice(0, 5 - s)),
+    h("p", {cls:"center", style:"font-weight:700"}, bands[s]),
+    t.a < TOTAL ? h("p", {cls:"center muted"}, "You answered " + t.a + " of " + TOTAL + ". Finish the other parts for a full score.") : null]));
+  var nm = mistakes().length;
+  w.appendChild(h("button", {cls:"bb go", style:"width:100%;margin:.3em 0", onclick:function(){ go("review"); }}, nm ? "Go over my mistakes (" + nm + ")" : "No mistakes! \uD83C\uDF89"));
+  w.appendChild(h("div", {cls:"grouphead"}, "Each part"));
+  for(var i = 0; i < PARTS.length; i++){
+    (function(i){ var P = PARTS[i], g = colOf(P);
+      w.appendChild(h("button", {cls:"rrow", onclick:function(){ openPart(i); }}, [h("span", {cls:"l", style:"background:" + g.c + ";color:" + g.ink}, P.id),
+        h("span", {cls:"t"}, P.title), h("span", {cls:"s"}, rightN(P) + " / " + scored(P).length)])); })(i);
+  }
+  foot.innerHTML = "";
+  foot.appendChild(h("button", {cls:"bb", onclick:function(){ go("menu"); }}, "\u2630 Menu"));
+  foot.appendChild(h("button", {cls:"bb go", onclick:function(){ go("review"); }, disabled:nm ? null : "disabled"}, "My mistakes"));
+}
+function mistakes(){
+  var list = [];
+  for(var i = 0; i < PARTS.length; i++){
+    var P = PARTS[i];
+    if(P.type === "sim"){ var seq = taskSeq(P);
+      for(var s = 0; s < seq.length; s++){ var ti = seq[s], a = S.ans[P.id + "t" + ti]; if(a && !a.ok){ var T = P.tasks[ti];
+        list.push({P:P, pi:i, q:T.t, you:a.pick, right:rightLabel(P, T), why:T.why, sim:true}); } } }
+    else { var ord = itemOrder(P);
+      for(var j = 0; j < ord.length; j++){ var it = P.items[ord[j]]; if(it.k === "page") continue; var b = S.ans[it.id];
+        if(b && !b.ok) list.push({P:P, pi:i, key:it.id, q:(it.show ? it.show + "  " : "") + it.q, you:b.pick, right:it.opts[correctIdx(it)], why:it.why}); } }
+  }
+  return list;
+}
+var TARGETNAMES = {};
+function rightLabel(P, T){
+  var t = T.target instanceof Array ? T.target[0] : T.target;
+  return T.rl || TARGETNAMES[t] || t;
+}
+function renderReview(){
+  document.body.className = "g2"; setAddr("my-mistakes");
+  var w = wrap, list = mistakes();
+  w.appendChild(sbar("\u2717", "Go over my mistakes"));
+  if(!list.length) w.appendChild(note("ok", "\u2713", h("p", null, "No mistakes to go over. Well done!")));
+  else w.appendChild(h("p", {cls:"lede"}, "Read each one. Then try it again."));
+  var lastP = null;
+  for(var i = 0; i < list.length; i++){
+    (function(m){
+      if(m.P !== lastP){ w.appendChild(h("div", {cls:"grouphead"}, [h("span", {cls:"sw", style:"background:" + colOf(m.P).c}), "Part " + m.P.id + ": " + m.P.title])); lastP = m.P; }
+      w.appendChild(h("div", {cls:"card no mist"}, [h("div", {cls:"q"}, m.q),
+        h("div", null, ["You chose: ", h("span", {cls:"you"}, m.you)]),
+        h("div", null, ["Right answer: ", h("span", {cls:"right"}, m.right)]),
+        h("div", {cls:"fb"}, m.why),
+        h("button", {cls:"chg", onclick:function(){
+          if(m.sim){ resetPart(m.P); openPart(m.pi); }
+          else { delete S.ans[m.key]; save(true); openPart(m.pi, m.key); }
+        }}, m.sim ? "\u21BB Do this part again" : "\u21BA Try it again")]));
+    })(list[i]);
+  }
+  foot.innerHTML = "";
+  foot.appendChild(h("button", {cls:"bb", onclick:function(){ go("results"); }}, "\u25C0 My results"));
+  foot.appendChild(h("button", {cls:"bb go", onclick:function(){ go("menu"); }}, "\u2630 Menu"));
+}
+
+/* ===================== ROUTER ===================== */
+function renderTop(){ document.body.removeAttribute("style"); document.documentElement.style.fontSize = SIZES[S.size] + "px"; wrap.innerHTML = ""; document.getElementById("pillRoot").innerHTML = ""; pillEl = null;
+  if(S.v === "part") renderPart(); else if(S.v === "results") renderResults(); else if(S.v === "review") renderReview(); else renderMenu();
+  setProg(); FLASH = null; }
+function renderKeep(){ var y = main.scrollTop; renderTop(); main.scrollTop = y; pillCheck(); }
+function go(v){ try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} S.v = v; blocked = 0; save(); renderTop(); main.scrollTop = 0; }
+function openPart(i, focusKey){
+  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+  S.v = "part"; S.p = i; S.last = PARTS[i].id; blocked = 0; save(); renderTop(); main.scrollTop = 0;
+  if(focusKey) setTimeout(function(){ flashCard(focusKey); }, 60);
+}
+document.getElementById("bMenu").onclick = function(){ go("menu"); };
+document.getElementById("bSmall").onclick = function(){ if(S.size > 0){ S.size--; save(); renderKeep(); } };
+document.getElementById("bBig").onclick = function(){ if(S.size < SIZES.length - 1){ S.size++; save(); renderKeep(); } };
+document.addEventListener("keydown", function(e){ if(e.key === "Escape") go("menu"); });
+window.addEventListener("pagehide", function(){ save(); });
+document.addEventListener("visibilitychange", function(){ if(document.visibilityState === "hidden") save(); });
+
+load();
+if(S.v === "review" || S.v === "results" || S.v === "part" || S.v === "menu"){} else S.v = "menu";
+renderTop();
+})();
+</script>
+</body>
+</html>
